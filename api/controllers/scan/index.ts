@@ -2,9 +2,10 @@ import { Context } from "koa";
 import { promises as fs } from "fs";
 import path from "path";
 import { ExifTool } from "exiftool-vendored";
-import { IMAGE_EXTENSIONS } from "./media-type";
+import { IMAGE_EXTENSIONS } from "./configs";
 import { readJsonFile, writeJsonFile } from "./db";
 import { getFileHash } from "./hash";
+import { generateThumbnail } from "./thumbnail";
 
 const exifTool = new ExifTool();
 
@@ -29,8 +30,10 @@ async function scanDirectory(db: object, dir: string) {
           fileName: file,
         };
       } else {
-        console.log("file already exists in db: ", filePath);
+        // console.log("file already exists in db: ", filePath);
       }
+
+      generateThumbnail(filePath);
     }
   }
 
@@ -39,12 +42,11 @@ async function scanDirectory(db: object, dir: string) {
 
 export default class ScannerController {
   public static async scan(ctx: Context) {
+    console.time("executionTime");
+
     const db = await readJsonFile();
 
-    await scanDirectory(
-      db,
-      "/Users/arthur/coding/photoview/docker-compose/photos"
-    );
+    await scanDirectory(db, "/Users/arthur/coding/moments-in-time/photos/all");
 
     const ret = await writeJsonFile(db);
     // const info: any[] = [];
@@ -52,6 +54,8 @@ export default class ScannerController {
     //   const metadata = await exifTool.read(filePath);
     //   info.push(metadata);
     // }
+    console.timeEnd("executionTime");
+
     ctx.body = ret;
   }
 }
