@@ -1,0 +1,8 @@
+{
+  "recommendations": [
+    "huacnlee.autocorrect",
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint",
+    "streetsidesoftware.code-spell-checker"
+  ]
+}
