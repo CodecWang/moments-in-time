@@ -2,14 +2,15 @@ import { Context } from "koa";
 import { promises as fs } from "fs";
 import path from "path";
 import { ExifTool } from "exiftool-vendored";
-import { IMAGE_EXTENSIONS } from "./configs";
+import { IMAGE_EXTENSIONS } from "../../configs";
 import { readJsonFile, writeJsonFile } from "./db";
 import { getFileHash } from "./hash";
 import { generateThumbnail } from "./thumbnail";
+import { filterTopLevelDirectories } from "./dir";
 
 const exifTool = new ExifTool();
 
-async function scanDirectory(db: object, dir: string) {
+async function scanDirectory(photoTable: Photo[], dir: string) {
   const files = await fs.readdir(dir);
 
   for (const file of files) {
@@ -17,18 +18,18 @@ async function scanDirectory(db: object, dir: string) {
     const stat = await fs.stat(filePath);
 
     if (stat.isDirectory()) {
-      await scanDirectory(db, filePath);
+      await scanDirectory(photoTable, filePath);
     } else if (IMAGE_EXTENSIONS.includes(path.extname(file).toLowerCase())) {
-      // @ts-ignore
-      if (!db || !db[filePath]) {
-        // @ts-ignore
-        db[filePath] = {
-          hash: await getFileHash(filePath),
-          modificationTime: stat.mtime,
-          creationTime: stat.birthtime,
-          fileSize: stat.size,
-          fileName: file,
-        };
+      const exists = photoTable.find((photo) => photo.path === filePath);
+      if (!exists) {
+        photoTable.push({
+          path: filePath,
+          filename: file,
+          createdTime: stat.birthtime,
+          modifiedTime: stat.mtime,
+          // hash: await getFileHash(filePath),
+          // fileSize: stat.size,
+        });
       } else {
         // console.log("file already exists in db: ", filePath);
       }
@@ -36,19 +37,26 @@ async function scanDirectory(db: object, dir: string) {
       generateThumbnail(filePath);
     }
   }
-
-  return db;
 }
 
 export default class ScannerController {
   public static async scan(ctx: Context) {
     console.time("executionTime");
 
-    const db = await readJsonFile();
+    const originalDirs = [
+      "/Users/arthur/coding/moments-in-time/photos/samples",
+    ];
+    const dirs = filterTopLevelDirectories(originalDirs);
+    const photoJson =
+      "/Users/arthur/coding/moments-in-time/api/fake-data/photo.json";
 
-    await scanDirectory(db, "/Users/arthur/coding/moments-in-time/photos/all");
+    const photoTable = await readJsonFile(photoJson);
 
-    const ret = await writeJsonFile(db);
+    for (const dir of dirs) {
+      await scanDirectory(photoTable, dir);
+    }
+
+    const ret = await writeJsonFile(photoTable, photoJson);
     // const info: any[] = [];
     // for (const filePath of paths) {
     //   const metadata = await exifTool.read(filePath);

@@ -1,8 +1,6 @@
 import { promises as fs } from "fs";
 
-const filePath = "/Users/arthur/coding/moments-in-time/api/fake-data/db.json";
-
-export async function readJsonFile() {
+export async function readJsonFile(filePath: string) {
   try {
     const data = await fs.readFile(filePath, "utf8");
     const jsonData = JSON.parse(data);
@@ -12,7 +10,7 @@ export async function readJsonFile() {
   }
 }
 
-export async function writeJsonFile(data: any) {
+export async function writeJsonFile(data: object, filePath: string) {
   try {
     const jsonString = JSON.stringify(data, null, 2);
     await fs.writeFile(filePath, jsonString, "utf8");

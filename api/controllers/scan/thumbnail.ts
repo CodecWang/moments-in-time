@@ -1,6 +1,6 @@
 import sharp from "sharp";
 import path from "path";
-import { ThumbnailSize } from "./configs";
+import { ThumbnailSize } from "../../configs";
 
 export async function generateThumbnail(filePath: string) {
   const filename = path.basename(filePath, path.extname(filePath));

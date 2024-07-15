@@ -1,10 +1,8 @@
 import Koa from "koa";
 import Router from "koa-router";
+import { photoRouter, scanRouter } from "./routes";
 // import bodyParser from "koa-bodyparser";
 // import serve from "koa-static";
-
-import photoRoutes from "./routes/photo";
-import scannerRoutes from "./routes/scan";
 
 const app = new Koa();
 const router = new Router();
@@ -20,8 +18,8 @@ router.get("/", async (ctx) => {
   ctx.body = "Hello, Koa with TypeScript!";
 });
 
-app.use(photoRoutes.routes()).use(photoRoutes.allowedMethods());
-app.use(scannerRoutes.routes()).use(scannerRoutes.allowedMethods());
+app.use(photoRouter.routes()).use(photoRouter.allowedMethods());
+app.use(scanRouter.routes()).use(scanRouter.allowedMethods());
 
 app.listen(3000, () => {
   console.log("Server running on http://localhost:3000");

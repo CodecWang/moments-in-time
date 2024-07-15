@@ -3,4 +3,9 @@
   "editor.formatOnSave": true,
   "autocorrect.formatOnSave": false,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.patterns": {
+    "*.ts": "${capture}.ts, ${capture}.test.ts",
+    "*.tsx": "${capture}.tsx"
+  }
 }
