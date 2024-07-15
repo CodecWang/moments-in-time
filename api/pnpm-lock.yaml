@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      exif-reader:
+        specifier: ^2.0.1
+        version: 2.0.1
       exiftool-vendored:
         specifier: ^27.0.0
         version: 27.0.0
@@ -892,6 +895,9 @@ packages:
   execa@5.1.1:
     resolution: {integrity: sha512-8uSpZZocAZRBAPIEINJj3Lo9HyGitllczc27Eh5YYojjMFMn8yHMDMaUHE2Jqfq05D/wucwI4JGURyXt1vchyg==}
     engines: {node: '>=10'}
+
+  exif-reader@2.0.1:
+    resolution: {integrity: sha512-gCQ/86RiAWSjeSlalj1G99IC6XnxbwkvB91HLqhh8somj/YBtC/2xuplvyjDjlfO7NsmYREPPElu/Syuy/H52g==}
 
   exiftool-vendored.exe@12.85.0:
     resolution: {integrity: sha512-rWsKVp9oXsS79S3bfCNXKeEo4av0xcd7slk/TfPpCa5pojg8ZVXSVfPZMAAlhOuK63YXrKN/e3jRNReeGP+2Gw==}
@@ -2846,6 +2852,8 @@ snapshots:
       onetime: 5.1.2
       signal-exit: 3.0.7
       strip-final-newline: 2.0.0
+
+  exif-reader@2.0.1: {}
 
   exiftool-vendored.exe@12.85.0:
     optional: true

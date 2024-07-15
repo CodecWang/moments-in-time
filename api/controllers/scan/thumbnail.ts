@@ -2,12 +2,12 @@ import sharp from "sharp";
 import path from "path";
 import { ThumbnailSize } from "../../configs";
 
-export async function generateThumbnail(filePath: string) {
+export async function generateThumbnail(filePath: string, data: Buffer) {
   const filename = path.basename(filePath, path.extname(filePath));
 
-  const img = sharp(filePath);
+  const img = sharp(data);
   const metadata = await img.metadata();
-  const { width, height } = metadata;
+  const { width, height, exif } = metadata;
   // TODO(arthur): metadata contains exif info, so, no need to import another exiftool?
 
   if (!width || !height) {
@@ -32,4 +32,6 @@ export async function generateThumbnail(filePath: string) {
       .jpeg({ mozjpeg: true })
       .toFile(output);
   });
+
+  return exif;
 }

@@ -6,15 +6,14 @@ import path from "path";
  * @returns List of top-level directories
  */
 export function filterTopLevelDirectories(directories: string[]) {
-  const topLevelDirectories = directories.filter((dir, _, arr) => {
-    // Check if any other directory in the array is a parent of the current directory
-    const isSubdirectory = arr.some((otherDir) => {
-      return dir !== otherDir && dir.startsWith(otherDir + path.sep);
-    });
+  // Step 1: Remove duplicates
+  const uniqueDirectories = Array.from(new Set(directories));
 
-    // Keep the directory if it's not a subdirectory of any other
-    return !isSubdirectory;
+  // Step 2: Filter top-level directories
+  return uniqueDirectories.filter((dir, _, arr) => {
+    // Check if the current directory is not a subdirectory of any other directory
+    return !arr.some(
+      (otherDir) => dir !== otherDir && dir.startsWith(otherDir + path.sep)
+    );
   });
-
-  return topLevelDirectories;
 }

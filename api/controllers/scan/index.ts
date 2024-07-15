@@ -1,69 +1,57 @@
 import { Context } from "koa";
 import { promises as fs } from "fs";
 import path from "path";
-import { ExifTool } from "exiftool-vendored";
 import { IMAGE_EXTENSIONS } from "../../configs";
-import { readJsonFile, writeJsonFile } from "./db";
-import { getFileHash } from "./hash";
-import { generateThumbnail } from "./thumbnail";
+import { updateDB } from "./db";
 import { filterTopLevelDirectories } from "./dir";
-
-const exifTool = new ExifTool();
-
-async function scanDirectory(photoTable: Photo[], dir: string) {
-  const files = await fs.readdir(dir);
-
-  for (const file of files) {
-    const filePath = path.join(dir, file);
-    const stat = await fs.stat(filePath);
-
-    if (stat.isDirectory()) {
-      await scanDirectory(photoTable, filePath);
-    } else if (IMAGE_EXTENSIONS.includes(path.extname(file).toLowerCase())) {
-      const exists = photoTable.find((photo) => photo.path === filePath);
-      if (!exists) {
-        photoTable.push({
-          path: filePath,
-          filename: file,
-          createdTime: stat.birthtime,
-          modifiedTime: stat.mtime,
-          // hash: await getFileHash(filePath),
-          // fileSize: stat.size,
-        });
-      } else {
-        // console.log("file already exists in db: ", filePath);
-      }
-
-      generateThumbnail(filePath);
-    }
-  }
-}
 
 export default class ScannerController {
   public static async scan(ctx: Context) {
     console.time("executionTime");
 
+    const scannedFiles: Photo[] = [];
     const originalDirs = [
-      "/Users/arthur/coding/moments-in-time/photos/samples",
+      "/Users/arthur/coding/moments-in-time/photos/all",
+      // "/Users/arthur/coding/moments-in-time/photos/samples",
     ];
     const dirs = filterTopLevelDirectories(originalDirs);
-    const photoJson =
-      "/Users/arthur/coding/moments-in-time/api/fake-data/photo.json";
 
-    const photoTable = await readJsonFile(photoJson);
+    const operations = dirs.map((dir) => scanDirectory(dir, scannedFiles));
+    await Promise.all(operations);
 
-    for (const dir of dirs) {
-      await scanDirectory(photoTable, dir);
-    }
+    const ret = await updateDB(scannedFiles);
 
-    const ret = await writeJsonFile(photoTable, photoJson);
-    // const info: any[] = [];
-    // for (const filePath of paths) {
-    //   const metadata = await exifTool.read(filePath);
-    //   info.push(metadata);
-    // }
     console.timeEnd("executionTime");
-
     ctx.body = ret;
   }
+}
+
+async function scanDirectory(dir: string, scannerFiles: Photo[]) {
+  const files = await fs.readdir(dir);
+
+  // Convert each file operation into a promise but don't await here
+  const operations = files.map(async (file) => {
+    const filePath = path.join(dir, file);
+    const stat = await fs.stat(filePath);
+
+    // Recursively scan directories
+    if (stat.isDirectory()) {
+      return scanDirectory(filePath, scannerFiles);
+    }
+
+    if (!IMAGE_EXTENSIONS.includes(path.extname(file).toLowerCase())) {
+      return;
+    }
+
+    // Push file details to scannerFiles
+    scannerFiles.push({
+      path: filePath,
+      filename: file,
+      createdTime: stat.birthtime.toISOString(),
+      modifiedTime: stat.mtime.toISOString(),
+    });
+  });
+
+  // Wait for all operations (both directory traversals and file processing) to complete
+  await Promise.all(operations);
 }

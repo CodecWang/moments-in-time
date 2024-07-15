@@ -2,6 +2,18 @@ import { describe, expect, it } from "@jest/globals";
 import { filterTopLevelDirectories } from "./dir";
 
 describe("filterTopLevelDirectories", () => {
+  it("should return remove duplicates", () => {
+    const directories = [
+      "/project/src",
+      "/project/src",
+      "/project/assets",
+      "/project/assets",
+    ];
+    const expected = ["/project/src", "/project/assets"];
+    const result = filterTopLevelDirectories(directories);
+    expect(result).toEqual(expected);
+  });
+
   it("should return only top-level directories from a list of directories", () => {
     const directories = [
       "/project/src",
