@@ -2,17 +2,17 @@ import { Context } from "koa";
 import { promises as fs } from "fs";
 import path from "path";
 import { IMAGE_EXTENSIONS } from "../../configs";
-import { updateDB } from "./db";
+import { updateDB } from "../../db";
 import { filterTopLevelDirectories } from "./dir";
 
-export default class ScannerController {
+export default class ScanController {
   public static async scan(ctx: Context) {
     console.time("executionTime");
 
     const scannedFiles: Photo[] = [];
     const originalDirs = [
-      "/Users/arthur/coding/moments-in-time/photos/all",
-      // "/Users/arthur/coding/moments-in-time/photos/samples",
+      // "/Users/arthur/coding/moments-in-time/photos/all",
+      "/Users/arthur/coding/moments-in-time/photos/samples",
     ];
     const dirs = filterTopLevelDirectories(originalDirs);
 
@@ -34,6 +34,8 @@ async function scanDirectory(dir: string, scannerFiles: Photo[]) {
     const filePath = path.join(dir, file);
     const stat = await fs.stat(filePath);
 
+    console.log(stat);
+
     // Recursively scan directories
     if (stat.isDirectory()) {
       return scanDirectory(filePath, scannerFiles);
@@ -45,10 +47,11 @@ async function scanDirectory(dir: string, scannerFiles: Photo[]) {
 
     // Push file details to scannerFiles
     scannerFiles.push({
+      id: "",
       path: filePath,
       filename: file,
-      createdTime: stat.birthtime.toISOString(),
-      modifiedTime: stat.mtime.toISOString(),
+      createdTime: stat.atime.toISOString(),
+      modifiedTime: stat.ctime.toISOString(),
     });
   });
 

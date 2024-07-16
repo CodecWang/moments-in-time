@@ -11,6 +11,12 @@ export const IMAGE_EXTENSIONS = [
   ".NEF",
 ];
 
+export const DB_PHOTO_JSON =
+  "/Users/arthur/coding/moments-in-time/api/fake-data/photo.json";
+
+export const DB_THUMBNAIL_JSON =
+  "/Users/arthur/coding/moments-in-time/api/fake-data/thumbnails.json";
+
 /** Thumbnail size */
 export enum ThumbnailSize {
   small = 100,

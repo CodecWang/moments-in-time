@@ -1,21 +1,29 @@
-const exiftool = require("exiftool-vendored").exiftool;
+// import { ExifTool } from "exiftool-vendored";
+// const exifTool = new ExifTool();
 
-async function modifyExifDate() {
-  try {
-    await exiftool.write(
-      "/Users/arthur/coding/photoview/docker-compose/photos/iShot_2023-08-01_23.11.1.png",
-      {
-        all: "",
-        DateTimeOriginal: "2024:07:14 00:00:00",
-      }
-    );
+// const exiftool = require("exiftool-vendored").exiftool;
 
-    console.log("EXIF data updated successfully.");
-  } catch (err) {
-    console.error("Error updating EXIF data:", err);
-  } finally {
-    await exiftool.end();
-  }
-}
+// async function modifyExifDate() {
+//   try {
+//     await exiftool.write(
+//       "/Users/arthur/coding/photoview/docker-compose/photos/iShot_2023-08-01_23.11.1.png",
+//       {
+//         all: "",
+//         DateTimeOriginal: "2024:07:14 00:00:00",
+//       }
+//     );
 
-modifyExifDate();
+//     console.log("EXIF data updated successfully.");
+//   } catch (err) {
+//     console.error("Error updating EXIF data:", err);
+//   } finally {
+//     await exiftool.end();
+//   }
+// }
+
+// modifyExifDate();
+
+const path = require("path");
+console.log(
+  path.extname("/Users/arthur/coding/photoview/docker-compose/photos")
+);

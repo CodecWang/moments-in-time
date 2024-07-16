@@ -1,8 +1,14 @@
-import sharp from "sharp";
+import sharp, { format } from "sharp";
 import path from "path";
-import { ThumbnailSize } from "../../configs";
+import { DB_THUMBNAIL_JSON, ThumbnailSize } from "../../configs";
+import { nanoid } from "nanoid";
+import { readJsonFile, writeJsonFile } from "../../db";
 
-export async function generateThumbnail(filePath: string, data: Buffer) {
+export async function generateThumbnail(
+  photoID: string,
+  filePath: string,
+  data: Buffer
+) {
   const filename = path.basename(filePath, path.extname(filePath));
 
   const img = sharp(data);
@@ -16,22 +22,40 @@ export async function generateThumbnail(filePath: string, data: Buffer) {
   }
 
   const sizes = [
-    ThumbnailSize.small,
-    ThumbnailSize.medium,
+    // ThumbnailSize.small,
+    // ThumbnailSize.medium,
     ThumbnailSize.large,
   ];
 
-  sizes.forEach(async (size) => {
-    const smallerSize = Math.min(width < height ? width : height, size);
-    const output = path.join(
-      "/Users/arthur/coding/moments-in-time/photos/thumbnails",
-      `${filename}.thumbnail${size}.jpg`
-    );
-    await img
-      .resize(width < height ? { width: smallerSize } : { height: smallerSize })
-      .jpeg({ mozjpeg: true })
-      .toFile(output);
+  const thumbnails: Thumbnail[] = [];
+  const smallerSize = Math.min(
+    width < height ? width : height,
+    ThumbnailSize.large
+  );
+  const outputFilename = `${filename}.thumbnail${ThumbnailSize.large}.jpg`;
+  const output = path.join(
+    "/Users/arthur/coding/moments-in-time/photos/thumbnails",
+    outputFilename
+  );
+  const outputImg = await img
+    .resize(width < height ? { width: smallerSize } : { height: smallerSize })
+    .jpeg({ mozjpeg: true })
+    .toFile(output);
+  thumbnails.push({
+    id: nanoid(),
+    photoID,
+    size: outputImg.size,
+    format: outputImg.format,
+    width: outputImg.width,
+    height: outputImg.height,
+    filename: outputFilename,
   });
+
+  console.log(thumbnails);
+  const dbThumbnails = await readJsonFile(DB_THUMBNAIL_JSON);
+  dbThumbnails.push(...thumbnails);
+
+  await writeJsonFile(dbThumbnails.sort(), DB_THUMBNAIL_JSON);
 
   return exif;
 }
