@@ -1,6 +1,6 @@
 import crypto from "crypto";
 
-export async function getFileHash(data: Buffer, algorithm = "md5") {
+export async function calCheckSum(data: Buffer, algorithm = "md5") {
   try {
     const hash = crypto.createHash(algorithm);
     hash.update(data);

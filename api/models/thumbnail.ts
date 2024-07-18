@@ -3,6 +3,8 @@ import { sequelize } from "../connect-db";
 
 export class Thumbnail extends Model {
   declare id: number;
+  declare variant: number;
+  declare size: number;
   declare filePath: string;
   declare width: number;
   declare height: number;
@@ -11,15 +13,17 @@ export class Thumbnail extends Model {
 
 Thumbnail.init(
   {
-    id: {
+    variant: {
+      type: DataTypes.TINYINT,
+      allowNull: false,
+    },
+    size: {
       type: DataTypes.INTEGER,
-      primaryKey: true,
-      autoIncrement: true,
+      allowNull: false,
     },
     filePath: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true,
     },
     width: {
       type: DataTypes.SMALLINT,

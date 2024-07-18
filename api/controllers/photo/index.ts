@@ -1,27 +1,67 @@
 import { Context } from "koa";
 import path from "path";
 import { promises as fs } from "fs";
-import { Photo, Thumbnail } from "../../models";
+import { Exif, Photo, Thumbnail } from "../../models";
 
 export default class PhotoController {
   public static async getAllPhotos(ctx: Context) {
     ctx.body = await Photo.findAll({
-      include: [Photo.Exif, Photo.Thumbnail],
+      include: [
+        {
+          model: Exif,
+          as: "exif",
+        },
+        {
+          model: Thumbnail,
+          as: "thumbnails",
+        },
+      ],
     });
+  }
+
+  public static async deletePhotos(ctx: Context) {
+    const { photoIds } = ctx.request.body;
+    await Photo.destroy({ where: { id: photoIds } });
+    ctx.body = "Photos deleted";
   }
 
   public static async getPhoto(ctx: Context) {
     const id = ctx.params.id;
     ctx.body = await Photo.findByPk(id, {
-      include: [Photo.Exif, Photo.Thumbnail],
+      include: [
+        {
+          model: Exif,
+          as: "exif",
+        },
+        {
+          model: Thumbnail,
+          as: "thumbnails",
+        },
+      ],
     });
+  }
+
+  public static async deletePhoto(ctx: Context) {
+    const id = ctx.params.id;
+    const photo = await Photo.findByPk(id);
+
+    if (!photo) {
+      ctx.status = 404;
+      ctx.body = "Photo not found";
+      return;
+    }
+
+    await photo.destroy();
+    ctx.body = "Photo deleted";
   }
 
   public static async getPhotoThumbnail(ctx: Context) {
     const id = ctx.params.id;
-    // const size = ctx.query.size;
+    const variant = ctx.query.variant;
 
-    const thumbnail = await Thumbnail.findOne({ where: { photoId: id } });
+    const thumbnail = await Thumbnail.findOne({
+      where: { photoId: id, variant },
+    });
 
     if (!thumbnail) {
       ctx.status = 404;

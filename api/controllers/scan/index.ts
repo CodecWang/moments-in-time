@@ -4,8 +4,8 @@ import path from "path";
 import { IMAGE_EXTENSIONS, ThumbnailSize } from "../../configs";
 import { filterTopLevelDirectories } from "./dir";
 import exifReader, { Exif as ExifInfo } from "exif-reader";
-import { Photo } from "../../models";
-import { getFileHash } from "./hash";
+import { Exif, Photo, Thumbnail } from "../../models";
+import { calCheckSum } from "./hash";
 import sharp from "sharp";
 
 interface ScannedFile {
@@ -20,7 +20,7 @@ export default class ScanController {
 
     const filePathMap = new Map<string, ScannedFile>();
     const originalDirs = [
-      "/Users/arthur/coding/moments-in-time/photos/all",
+      // "/Users/arthur/coding/moments-in-time/photos/all",
       "/Users/arthur/coding/moments-in-time/photos/samples",
     ];
     const dirs = filterTopLevelDirectories(originalDirs);
@@ -39,7 +39,7 @@ export default class ScanController {
     for (const [filePath, scannedFile] of filePathMap) {
       const photo = photosMap.get(filePath);
       const buffer = await fs.readFile(filePath);
-      const checkSum = await getFileHash(buffer);
+      const checkSum = await calCheckSum(buffer);
       if (!checkSum) {
         console.error("File is broken, no checkSum can be generated.");
         continue;
@@ -84,7 +84,10 @@ export default class ScanController {
 
     if (photoCreateOps.length > 0)
       await Photo.bulkCreate(photoCreateOps, {
-        include: [Photo.Exif, Photo.Thumbnail],
+        include: [
+          { model: Exif, as: "exif" },
+          { model: Thumbnail, as: "thumbnails" },
+        ],
       });
     if (photoUpdateOps.length > 0) {
       await Promise.all(
@@ -138,17 +141,21 @@ async function generateThumbnails(img, width, height, filePath: string) {
     width < height ? width : height,
     ThumbnailSize.large
   );
-  const outputFilename = `${filename}.thumbnail${ThumbnailSize.large}.jpg`;
+  const outputFilename = `th_m_${filename}.jpg`;
   const output = path.join(
     "/Users/arthur/coding/moments-in-time/photos/thumbnails",
     outputFilename
   );
+  // medium/highres/small/blur/large
   const outputImg = await img
     .resize(width < height ? { width: smallerSize } : { height: smallerSize })
     .jpeg({ mozjpeg: true })
     .toFile(output);
+
   return [
     {
+      variant: 2,
+      size: outputImg.size,
       filePath: outputFilename,
       width: outputImg.width,
       height: outputImg.height,

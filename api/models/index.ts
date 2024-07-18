@@ -13,7 +13,7 @@ Photo.belongsToMany(Album, {
   as: "albums",
 });
 
-Photo.Exif = Photo.hasOne(Exif, { foreignKey: "photoId", as: "exif" });
+Photo.hasOne(Exif, { foreignKey: "photoId", as: "exif" });
 Exif.belongsTo(Photo, { foreignKey: "photoId" });
 
 Photo.Thumbnail = Photo.hasMany(Thumbnail, {
