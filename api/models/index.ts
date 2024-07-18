@@ -1,56 +1,25 @@
-interface Photo {
-  id: string;
-  path: string;
-  filename: string;
-  createdTime: string;
-  modifiedTime: string;
-  // faces: Object[];
+import { Album } from "./album";
+import { AlbumPhoto } from "./album-photo";
+import { Exif } from "./exif";
+import { Photo } from "./photo";
+import { Thumbnail } from "./thumbnail";
 
-  createdAt?: string;
-  updatedAt?: string;
-}
+Album.belongsToMany(Photo, {
+  through: AlbumPhoto,
+  as: "photos",
+});
+Photo.belongsToMany(Album, {
+  through: AlbumPhoto,
+  as: "albums",
+});
 
-interface Album {
-  id: string;
-  title: string;
-  description: string;
-  createdAt?: string;
-  updatedAt?: string;
-}
+Photo.Exif = Photo.hasOne(Exif, { foreignKey: "photoId", as: "exif" });
+Exif.belongsTo(Photo, { foreignKey: "photoId" });
 
-interface PhotoAlbum {
-  id: string;
-  photoID: string;
-  albumID: string;
-  createdAt?: string;
-  updatedAt?: string;
-}
+Photo.Thumbnail = Photo.hasMany(Thumbnail, {
+  foreignKey: "photoId",
+  as: "thumbnails",
+});
+Thumbnail.belongsTo(Photo, { foreignKey: "photoId" });
 
-interface Thumbnail {
-  id: string;
-  photoID: string;
-  filename: string;
-  size: number;
-  width: number;
-  height: number;
-  format: string;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
-interface Exif {
-  id: string;
-  photoId: string;
-  camera: string;
-  maker: string;
-  lens: string;
-  exposure: number;
-  aperture: number;
-  iso: number;
-  shotDate: string;
-  gpsLatitude: number;
-  gpsLongitude: number;
-
-  createdAt?: string;
-  updatedAt?: string;
-}
+export { Album, AlbumPhoto, Exif, Photo, Thumbnail };

@@ -1,60 +1,169 @@
 import { Context } from "koa";
 import { promises as fs } from "fs";
 import path from "path";
-import { IMAGE_EXTENSIONS } from "../../configs";
-import { updateDB } from "../../db";
+import { IMAGE_EXTENSIONS, ThumbnailSize } from "../../configs";
 import { filterTopLevelDirectories } from "./dir";
+import exifReader, { Exif as ExifInfo } from "exif-reader";
+import { Photo } from "../../models";
+import { getFileHash } from "./hash";
+import sharp from "sharp";
+
+interface ScannedFile {
+  filePath: string;
+  createdTime: Date;
+  modifiedTime: Date;
+}
 
 export default class ScanController {
   public static async scan(ctx: Context) {
-    console.time("executionTime");
+    console.time("scanFilesTime");
 
-    const scannedFiles: Photo[] = [];
+    const filePathMap = new Map<string, ScannedFile>();
     const originalDirs = [
-      // "/Users/arthur/coding/moments-in-time/photos/all",
+      "/Users/arthur/coding/moments-in-time/photos/all",
       "/Users/arthur/coding/moments-in-time/photos/samples",
     ];
     const dirs = filterTopLevelDirectories(originalDirs);
 
-    const operations = dirs.map((dir) => scanDirectory(dir, scannedFiles));
-    await Promise.all(operations);
+    const photos = await Photo.findAll();
+    const photosMap = new Map<string, Photo>(
+      photos.map((item) => [item.filePath, item])
+    );
+    await Promise.all(dirs.map((dir) => scanDirectory(dir, filePathMap)));
 
-    const ret = await updateDB(scannedFiles);
+    console.log(filePathMap.size);
 
-    console.timeEnd("executionTime");
-    ctx.body = ret;
+    const photoCreateOps = [];
+    const photoUpdateOps = [];
+
+    for (const [filePath, scannedFile] of filePathMap) {
+      const photo = photosMap.get(filePath);
+      const buffer = await fs.readFile(filePath);
+      const checkSum = await getFileHash(buffer);
+      if (!checkSum) {
+        console.error("File is broken, no checkSum can be generated.");
+        continue;
+      }
+
+      // File hasn't changed
+      if (photo && photo.checkSum === checkSum) {
+        continue;
+      }
+
+      const img = sharp(buffer);
+      const { width, height, exif: exifBuffer } = await img.metadata();
+      const exif = exifBuffer ? exifReader(exifBuffer) : null;
+      const shotTime = exif?.Photo?.DateTimeOriginal || scannedFile.createdTime;
+
+      const fileInfo = {
+        checkSum,
+        filePath,
+        shotTime,
+        modifiedTime: scannedFile.modifiedTime,
+      };
+
+      const thumbnails = await generateThumbnails(img, width, height, filePath);
+      const exifInfo = await generateExifs(exif, shotTime);
+
+      // A new photo
+      if (!photo) {
+        photoCreateOps.push({ ...fileInfo, exif: exifInfo, thumbnails });
+        continue;
+      }
+
+      // A photo has been updated
+      if (photo.checkSum !== checkSum) {
+        photoUpdateOps.push({
+          ...fileInfo,
+          exif: exifInfo,
+          thumbnails,
+          id: photo.id,
+        });
+      }
+    }
+
+    if (photoCreateOps.length > 0)
+      await Photo.bulkCreate(photoCreateOps, {
+        include: [Photo.Exif, Photo.Thumbnail],
+      });
+    if (photoUpdateOps.length > 0) {
+      await Promise.all(
+        photoUpdateOps.map((op) => Photo.update(op, { where: { id: op.id } }))
+      );
+    }
+
+    const deleteOps = photos
+      .filter((p) => !filePathMap.has(p.filePath))
+      .map((p) => p.filePath);
+    if (deleteOps.length > 0)
+      await Photo.destroy({ where: { filePath: deleteOps } });
+
+    console.timeEnd("scanFilesTime");
+
+    ctx.body = true;
   }
 }
 
-async function scanDirectory(dir: string, scannerFiles: Photo[]) {
+async function scanDirectory(
+  dir: string,
+  scannerFiles: Map<string, ScannedFile>
+) {
   const files = await fs.readdir(dir);
 
-  // Convert each file operation into a promise but don't await here
-  const operations = files.map(async (file) => {
-    const filePath = path.join(dir, file);
-    const stat = await fs.stat(filePath);
+  await Promise.all(
+    files.map(async (file) => {
+      const filePath = path.join(dir, file);
+      const stat = await fs.stat(filePath);
 
-    console.log(stat);
+      if (stat.isDirectory()) {
+        return scanDirectory(filePath, scannerFiles);
+      }
 
-    // Recursively scan directories
-    if (stat.isDirectory()) {
-      return scanDirectory(filePath, scannerFiles);
-    }
+      if (!IMAGE_EXTENSIONS.includes(path.extname(file).toLowerCase())) {
+        return;
+      }
 
-    if (!IMAGE_EXTENSIONS.includes(path.extname(file).toLowerCase())) {
-      return;
-    }
+      scannerFiles.set(filePath, {
+        filePath,
+        createdTime: stat.birthtime,
+        modifiedTime: stat.mtime,
+      });
+    })
+  );
+}
 
-    // Push file details to scannerFiles
-    scannerFiles.push({
-      id: "",
-      path: filePath,
-      filename: file,
-      createdTime: stat.atime.toISOString(),
-      modifiedTime: stat.ctime.toISOString(),
-    });
-  });
+async function generateThumbnails(img, width, height, filePath: string) {
+  const filename = path.basename(filePath, path.extname(filePath));
+  const smallerSize = Math.min(
+    width < height ? width : height,
+    ThumbnailSize.large
+  );
+  const outputFilename = `${filename}.thumbnail${ThumbnailSize.large}.jpg`;
+  const output = path.join(
+    "/Users/arthur/coding/moments-in-time/photos/thumbnails",
+    outputFilename
+  );
+  const outputImg = await img
+    .resize(width < height ? { width: smallerSize } : { height: smallerSize })
+    .jpeg({ mozjpeg: true })
+    .toFile(output);
+  return [
+    {
+      filePath: outputFilename,
+      width: outputImg.width,
+      height: outputImg.height,
+      format: outputImg.format,
+    },
+  ];
+}
 
-  // Wait for all operations (both directory traversals and file processing) to complete
-  await Promise.all(operations);
+async function generateExifs(exif: ExifInfo, shotTime: Date) {
+  return {
+    shotTime,
+    cameraMake: exif?.Image?.Make,
+    cameraModel: exif?.Image?.Model,
+    iso: exif?.Image?.ISO,
+    gpsLatitude: exif?.GPSInfo?.GPSDestLatitude,
+    gpsLongitude: exif?.GPSInfo?.GPSDestLongitude,
+  };
 }

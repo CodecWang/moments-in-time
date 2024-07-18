@@ -1,38 +1,28 @@
 import { Context } from "koa";
-import { readJsonFile } from "../../db";
 import path from "path";
 import { promises as fs } from "fs";
-import { DB_PHOTO_JSON, DB_THUMBNAIL_JSON } from "../../configs";
+import { Photo, Thumbnail } from "../../models";
 
 export default class PhotoController {
   public static async getAllPhotos(ctx: Context) {
-    console.time("executionTime");
-
-    const dbFiles = await readJsonFile(DB_PHOTO_JSON);
-    ctx.body = dbFiles;
-
-    console.timeEnd("executionTime");
+    ctx.body = await Photo.findAll({
+      include: [Photo.Exif, Photo.Thumbnail],
+    });
   }
 
   public static async getPhoto(ctx: Context) {
-    console.time("executionTime");
-
-    const dbFiles = (await readJsonFile(DB_PHOTO_JSON)) as Photo[];
     const id = ctx.params.id;
-    const photo = dbFiles.find((item) => item.id === id);
-    ctx.body = photo;
-
-    console.timeEnd("executionTime");
+    ctx.body = await Photo.findByPk(id, {
+      include: [Photo.Exif, Photo.Thumbnail],
+    });
   }
 
   public static async getPhotoThumbnail(ctx: Context) {
-    console.time("executionTime");
-
     const id = ctx.params.id;
-    const size = ctx.query.size;
+    // const size = ctx.query.size;
 
-    const dbThumbnails = (await readJsonFile(DB_THUMBNAIL_JSON)) as Thumbnail[];
-    const thumbnail = dbThumbnails.find((item) => item.photoID === id);
+    const thumbnail = await Thumbnail.findOne({ where: { photoId: id } });
+
     if (!thumbnail) {
       ctx.status = 404;
       ctx.body = "Thumbnail not found";
@@ -41,7 +31,7 @@ export default class PhotoController {
 
     const imagePath = path.join(
       "/Users/arthur/coding/moments-in-time/photos/thumbnails",
-      thumbnail.filename
+      thumbnail.filePath
     );
 
     await fs.access(imagePath, fs.constants.F_OK);
