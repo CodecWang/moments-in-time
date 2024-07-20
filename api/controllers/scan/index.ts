@@ -20,8 +20,8 @@ export default class ScanController {
 
     const filePathMap = new Map<string, ScannedFile>();
     const originalDirs = [
-      // "/Users/arthur/coding/moments-in-time/photos/all",
-      "/Users/arthur/coding/moments-in-time/photos/samples",
+      "/Users/arthur/coding/moments-in-time/photos/all",
+      // "/Users/arthur/coding/moments-in-time/photos/samples",
     ];
     const dirs = filterTopLevelDirectories(originalDirs);
 

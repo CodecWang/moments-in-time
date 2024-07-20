@@ -1,0 +1,26 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.header {
+  height: 50px;
+  background-color: aquamarine;
+}
+
+.container2 {
+  display: flex;
+  flex: 1;
+}
+
+.sidebar {
+  width: 200px;
+  background-color: lightsalmon;
+}
+
+.content {
+  position: relative;
+  flex: 1;
+  overflow: hidden auto;
+}
