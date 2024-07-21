@@ -6,7 +6,7 @@ export default function Header() {
     <nav className={styles.navbar}>
       <ul className={styles.navList}>
         <li className={styles.navItem}>
-          <Link href="/">照片</Link>
+          <Link href="/photos">照片</Link>
         </li>
         <li className={styles.navItem}>
           <Link href="/albums">相册</Link>
