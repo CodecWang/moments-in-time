@@ -5,7 +5,7 @@ import { Exif, Photo, Thumbnail } from "../../models";
 
 export default class PhotoController {
   public static async getAllPhotos(ctx: Context) {
-    ctx.body = await Photo.findAll({
+    const photos = await Photo.findAll({
       include: [
         {
           model: Exif,
@@ -16,7 +16,27 @@ export default class PhotoController {
           as: "thumbnails",
         },
       ],
+      order: [["shotTime", "DESC"]],
     });
+
+    const groupedPhotos = photos.reduce(
+      (acc: { [key: string]: Photo[] }, photo) => {
+        const date = photo.shotTime.toISOString().split("T")[0]; // 提取日期部分
+        if (!acc[date]) {
+          acc[date] = [];
+        }
+        acc[date].push(photo);
+        return acc;
+      },
+      {}
+    );
+
+    const result = Object.keys(groupedPhotos).map((date) => ({
+      date,
+      photos: groupedPhotos[date],
+    }));
+
+    ctx.body = result;
   }
 
   public static async deletePhotos(ctx: Context) {
