@@ -16,11 +16,11 @@ export default function Header() {
           <Link href="/explorer">探索</Link>
         </li>
         <li className={styles.navItem}>
-          <Link href="/demo">设置</Link>
+          <Link href="/demo">我的</Link>
         </li>
-        <li className={styles.navItem}>
+        {/* <li className={styles.navItem}>
           <Link href="/share">分享</Link>
-        </li>
+        </li> */}
       </ul>
     </nav>
   );

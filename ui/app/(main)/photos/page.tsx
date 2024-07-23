@@ -4,9 +4,9 @@ import Image from "next/image";
 import styles from "./page.module.css";
 import { useEffect, useState } from "react";
 
-import justifiedLayout from "justified-layout";
 import { createPortal } from "react-dom";
 import PhotoViewer from "@/components/photo-viewer";
+import { PhotoGroup } from "@/components/photo-group/page";
 
 enum PhotoLayout {
   Justified,
@@ -15,13 +15,13 @@ enum PhotoLayout {
 }
 
 export default function Home() {
+  const [isViewerOpen, setIsViewerOpen] = useState(false);
+  const [currentPhoto, setCurrentPhoto] = useState();
   const [photoLayout, setPhotoLayout] = useState<PhotoLayout>(
     PhotoLayout.Justified
   );
 
   const [photos, setPhotos] = useState<any[]>([]);
-
-  const [isViewerOpen, setIsViewerOpen] = useState(false);
 
   const [viewportWidth, setViewportWidth] = useState(0);
 
@@ -45,49 +45,43 @@ export default function Home() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  console.log(">>>", viewportWidth);
   if (!photos.length || viewportWidth === 0) {
     return <div>Loading...</div>;
   }
 
-  const layout = justifiedLayout(
-    photos.map((photo) => photo.thumbnails[0]),
-    {
-      containerWidth: viewportWidth,
-      containerPadding: 0,
-      boxSpacing: { horizontal: 2, vertical: 2 },
-      targetRowHeight: 250,
-      // targetRowHeightTolerance: 0,
-      // forceAspectRatio: 1,
-      // fullWidthBreakoutRowCadence: 2
-    }
-  );
-  console.log(">>>", layout);
+  const handlePhotoClick = (photo: any) => {
+    console.log(">>>>", photo);
+    setCurrentPhoto(photo);
+    setIsViewerOpen(true);
+  };
 
   return (
     <>
-      <div id="photos-container" style={{ position: "relative" }}>
-        {layout.boxes.map(({ width, height, top, left }, index) => (
-          <Image
-            key={index}
-            src={`/api/v1/photos/${photos[index].id}/thumbnail?variant=2`}
-            width={photoLayout === PhotoLayout.Justified ? width : 200}
-            height={photoLayout === PhotoLayout.Justified ? height : 200}
-            style={{
-              top,
-              left,
-              position:
-                photoLayout === PhotoLayout.Justified ? "absolute" : "unset",
-              objectFit:
-                photoLayout === PhotoLayout.Justified ? "unset" : "cover",
-            }}
-            onClick={() => setIsViewerOpen(true)}
-            alt=""
+      <h1>filter area</h1>
+      <div>
+        {photos.map(({ date, photos }) => (
+          <PhotoGroup
+            key={date}
+            date={date}
+            photos={photos}
+            viewportWidth={viewportWidth}
+            onClick={(photo) => handlePhotoClick(photo)}
+            onSelect={(selected) => setSelectedPhotos(selected)}
           />
         ))}
+      </div>
 
-        {isViewerOpen && createPortal(<PhotoViewer />, document.body)}
+      {isViewerOpen &&
+        createPortal(
+          <PhotoViewer
+            photo={currentPhoto}
+            onClose={() => setIsViewerOpen(false)}
+          />,
+          document.body
+        )}
 
+      {/* 
+      
         <div style={{ position: "fixed", height: "50px", bottom: 0 }}>
           <button onClick={() => setPhotoLayout(PhotoLayout.Justified)}>
             Justified
@@ -96,8 +90,7 @@ export default function Home() {
           <button onClick={() => setPhotoLayout(PhotoLayout.Masonry)}>
             Masonry
           </button>
-        </div>
-      </div>
+        </div> */}
     </>
   );
 }
