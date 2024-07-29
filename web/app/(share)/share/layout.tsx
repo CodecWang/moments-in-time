@@ -18,7 +18,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <div>
-          <h1>Welcome to Share Page</h1>
+          <h1 className="h1">Welcome to Share Page1</h1>
           <main>{children}</main>
         </div>
       </body>
