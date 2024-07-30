@@ -18,25 +18,7 @@ export default class PhotoController {
       ],
       order: [["shotTime", "DESC"]],
     });
-
-    const groupedPhotos = photos.reduce(
-      (acc: { [key: string]: Photo[] }, photo) => {
-        const date = photo.shotTime.toISOString().split("T")[0]; // 提取日期部分
-        if (!acc[date]) {
-          acc[date] = [];
-        }
-        acc[date].push(photo);
-        return acc;
-      },
-      {}
-    );
-
-    const result = Object.keys(groupedPhotos).map((date) => ({
-      date,
-      photos: groupedPhotos[date],
-    }));
-
-    ctx.body = result;
+    ctx.body = photos;
   }
 
   public static async deletePhotos(ctx: Context) {
