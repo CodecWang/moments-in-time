@@ -5,6 +5,7 @@ import { ArrowUpTrayIcon } from "@heroicons/react/24/outline";
 import { ViewColumnsIcon } from "@heroicons/react/24/outline";
 import { FunnelIcon } from "@heroicons/react/24/outline";
 import { useEffect, useState } from "react";
+import LayoutSettings from "./layout-settings";
 
 enum GroupedBy {
   NoGroup,
@@ -70,70 +71,61 @@ export default function Page() {
   }, [rawPhotos, groupedBy]);
 
   return (
-    <div>
-      <div className="bg-base-100 p-2 text-base-content sticky top-0 z-10 flex w-full h-16 bg-opacity-90 backdrop-blur transition-shadow duration-100 [transform:translate3d(0,0,0)] border-b border-b-base-300">
-        <div className="prose flex items-center px-4">
-          <h3>Photos</h3>
+    <div className="flex">
+      <div className="flex-grow">
+        <div className="bg-base-100 p-2 text-base-content sticky top-0 z-10 flex w-full h-16 bg-opacity-90 backdrop-blur transition-shadow duration-100 [transform:translate3d(0,0,0)] border-b border-b-base-300">
+          <div className="prose flex items-center px-4">
+            <h3>Photos</h3>
+          </div>
+
+          <div className="join m-auto">
+            <input
+              className="join-item btn"
+              type="radio"
+              name="options"
+              onChange={() => setGroupedBy(GroupedBy.Day)}
+              aria-label="Day"
+            />
+            <input
+              className="join-item btn"
+              type="radio"
+              name="options"
+              onChange={() => setGroupedBy(GroupedBy.Month)}
+              aria-label="Month"
+            />
+            <input
+              className="join-item btn"
+              type="radio"
+              name="options"
+              onChange={() => setGroupedBy(GroupedBy.Year)}
+              aria-label="Year"
+            />
+          </div>
+
+          <button className="btn btn-ghost">
+            <ArrowUpTrayIcon className="size-4" />
+            Upload
+          </button>
+          <button className="btn btn-circle btn-ghost">
+            <ViewColumnsIcon className="size-5" />
+          </button>
+          <button
+            className="btn btn-circle btn-ghost"
+            onClick={() => {
+              const sidebar = document.getElementById("sidebar");
+
+              sidebar.classList.toggle("hidden");
+            }}
+          >
+            <FunnelIcon className="size-5" />
+          </button>
         </div>
 
-        <div className="join m-auto">
-          <input
-            className="join-item btn"
-            type="radio"
-            name="options"
-            onChange={() => setGroupedBy(GroupedBy.Day)}
-            aria-label="Day"
-          />
-          <input
-            className="join-item btn"
-            type="radio"
-            name="options"
-            onChange={() => setGroupedBy(GroupedBy.Month)}
-            aria-label="Month"
-          />
-          <input
-            className="join-item btn"
-            type="radio"
-            name="options"
-            onChange={() => setGroupedBy(GroupedBy.Year)}
-            aria-label="Year"
-          />
-        </div>
-
-        <button className="btn btn-ghost">
-          <ArrowUpTrayIcon className="size-4" />
-          Upload
-        </button>
-        <button className="btn btn-circle btn-ghost">
-          <ViewColumnsIcon className="size-5" />
-        </button>
-        <button
-          className="btn btn-circle btn-ghost"
-          onClick={() => {
-            const sidebar = document.getElementById("sidebar");
-
-            sidebar.classList.toggle("hidden");
-          }}
-        >
-          <FunnelIcon className="size-5" />
-        </button>
-      </div>
-
-      <div className="flex">
-        <div className="flex-grow px-4 pt-4">
+        <div className="px-4 pt-2">
           <Photos data={photos} />
         </div>
-        <div
-          id="sidebar"
-          className="sidebar sidebar-hidden w-64 h-full bg-gray-800 text-white p-4"
-        >
-          <button id="closeSidebar" className="btn btn-sm btn-circle mb-4">
-            ✕
-          </button>
-          <h2 className="text-2xl">Sidebar Content</h2>
-          <p>Here is some content in the sidebar.</p>
-        </div>
       </div>
+      <LayoutSettings />
     </div>
   );
 }

@@ -28,13 +28,15 @@ export const NavProvider = ({
           <NavBar />
         </>
       ) : (
-        <div className="drawer bg-base-100 lg:drawer-open">
-          <input id="drawer" type="checkbox" className="drawer-toggle" />
-          <div className="drawer-content">
-            <Header />
-            {children}
+        <div className="h-lvh flex flex-col">
+          <Header />
+          <div className="flex-grow pt-16">
+            <div className="drawer bg-base-100 lg:drawer-open overflow-hidden">
+              <input id="drawer" type="checkbox" className="drawer-toggle" />
+              <div className="drawer-content">{children}</div>
+              <SideNav />
+            </div>
           </div>
-          <SideNav />
         </div>
       )}
     </NavContext.Provider>
