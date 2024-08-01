@@ -1,8 +1,10 @@
-import { Bars3Icon } from "@heroicons/react/24/outline";
+import { Bars3Icon, MoonIcon, SunIcon } from "@heroicons/react/24/outline";
+import { useTheme } from "next-themes";
 
 export default function Header() {
+  const { theme, setTheme } = useTheme();
   return (
-    <div className="bg-base-200 text-base-content fixed top-0 flex h-16 w-full justify-center">
+    <div className="bg-base-200 text-base-content fixed top-0 z-20 flex h-16 w-full justify-center">
       <nav className="navbar bg-base-200">
         <div className="flex-none">
           <label
@@ -13,23 +15,21 @@ export default function Header() {
           </label>
         </div>
         <div className="flex-1">
-          <a className="btn btn-ghost text-xl">Echo Photos</a>
+          <a className="btn btn-ghost text-xl">Here Photos</a>
         </div>
         <div className="flex-none">
-          <button className="btn btn-square btn-ghost">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              className="inline-block h-5 w-5 stroke-current"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"
-              ></path>
-            </svg>
+          <button className="btn btn-ghost btn-circle">
+            <label className="swap swap-rotate">
+              <input
+                type="checkbox"
+                className="theme-controller"
+                checked={theme !== "dark"}
+                onChange={(e) => setTheme(e.target.checked ? "light" : "dark")}
+              />
+
+              <SunIcon className="size-5 swap-off" />
+              <MoonIcon className="size-5 swap-on" />
+            </label>
           </button>
         </div>
       </nav>

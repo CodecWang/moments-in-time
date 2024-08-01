@@ -4,8 +4,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ReactNode } from "react";
-import { NavProvider } from "./nav-context";
-
+import { NavProvider } from "./nav-provider";
+import { ThemeProvider } from "next-themes";
 const inter = Inter({ subsets: ["latin"] });
 
 // export const metadata: Metadata = {
@@ -19,9 +19,11 @@ export default function RootLayout({
   children: ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <NavProvider>{children}</NavProvider>
+        <ThemeProvider>
+          <NavProvider>{children}</NavProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

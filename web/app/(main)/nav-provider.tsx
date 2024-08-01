@@ -4,8 +4,8 @@ import SideNav from "@/components/side-nav";
 import { createContext, ReactNode, useState } from "react";
 
 enum NavMode {
-  Traditional,
   Modern,
+  Traditional,
 }
 
 export const NavContext = createContext({
@@ -13,15 +13,37 @@ export const NavContext = createContext({
   setNavMode: (_mode: NavMode) => {},
 });
 
+function getNavMode() {
+  if (typeof window !== "undefined") {
+    const mode = localStorage.getItem("nav-mode");
+    if (mode) {
+      return parseInt(mode);
+    }
+  }
+  return NavMode.Modern;
+}
+
+interface NavProviderProps {}
+
 export const NavProvider = ({
   children,
 }: Readonly<{
   children: ReactNode;
 }>) => {
-  const [navMode, setNavMode] = useState(NavMode.Modern);
+  const [navMode, setNavModeState] = useState(getNavMode());
+
+  const setNavMode = (mode: NavMode) => {
+    setNavModeState(mode);
+    localStorage.setItem("nav-mode", mode.toString());
+  };
+
+  const providerValue = {
+    navMode,
+    setNavMode,
+  };
 
   return (
-    <NavContext.Provider value={{ navMode, setNavMode }}>
+    <NavContext.Provider value={providerValue}>
       {navMode === NavMode.Modern ? (
         <>
           {children}
