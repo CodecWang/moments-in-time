@@ -50,12 +50,12 @@ export const NavProvider = ({
           <NavBar />
         </>
       ) : (
-        <div className="h-lvh flex flex-col">
+        <div className="flex h-lvh flex-col">
           <Header />
           <div className="flex-grow pt-16">
-            <div className="drawer bg-base-100 lg:drawer-open overflow-hidden">
+            <div className="drawer h-full overflow-hidden bg-base-100 lg:drawer-open">
               <input id="drawer" type="checkbox" className="drawer-toggle" />
-              <div className="drawer-content">{children}</div>
+              <div className="drawer-content relative">{children}</div>
               <SideNav />
             </div>
           </div>

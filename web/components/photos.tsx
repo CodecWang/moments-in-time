@@ -1,28 +1,18 @@
 import justifiedLayout from "justified-layout";
 import { Photo } from "./photo";
 import { useEffect, useRef, useState } from "react";
+import { PhotosViewSetting } from "@/type";
 
 interface PhotosProps {
-  data: any[];
+  data: PhotoGroup[];
+  viewSettings: PhotosViewSetting;
 }
 
-export default function Photos({ data }: PhotosProps) {
+export default function Photos({ data, viewSettings }: PhotosProps) {
+  console.log(data);
+
   const wrapRef = useRef<HTMLDivElement>(null);
   const [viewportWidth, setViewportWidth] = useState(null);
-
-  // useEffect(() => {
-  //   const handleResize = () => {
-  //     const container = wrapRef.current;
-  //     console.log(container);
-  //     if (!container) return;
-
-  //     const ele = container.getBoundingClientRect();
-  //     setViewportWidth(ele.width);
-  //   };
-  //   handleResize();
-  //   window.addEventListener("resize", handleResize);
-  //   return () => window.removeEventListener("resize", handleResize);
-  // }, []);
 
   useEffect(() => {
     const handleResize = (entries) => {
@@ -52,11 +42,12 @@ export default function Photos({ data }: PhotosProps) {
 
   return (
     <div ref={wrapRef}>
-      {data.map(({ date, photos }) => (
+      {data.map(({ title, photos }, index) => (
         <PhotoGroup
-          key={date}
-          date={date}
+          key={index}
+          title={title}
           photos={photos}
+          viewSettings={viewSettings}
           viewportWidth={viewportWidth}
           onClick={(photo) => handlePhotoClick(photo)}
           onSelect={(selected) => setSelectedPhotos(selected)}
@@ -67,17 +58,19 @@ export default function Photos({ data }: PhotosProps) {
 }
 
 interface PhotoGroupProps {
-  date: string;
+  title?: string;
   photos: Photo[];
+  viewSettings: PhotosView;
   viewportWidth: number;
   onClick: (photo: Photo) => void;
   onSelect: (photo: Photo) => void;
 }
 
 function PhotoGroup({
-  date,
+  title,
   photos,
   viewportWidth,
+  viewSettings,
   onClick,
   onSelect,
 }: PhotoGroupProps) {
@@ -86,19 +79,24 @@ function PhotoGroup({
     {
       containerWidth: viewportWidth,
       containerPadding: 0,
-      boxSpacing: { horizontal: 2, vertical: 2 },
-      targetRowHeight: 220,
+      boxSpacing: {
+        horizontal: viewSettings.spacing,
+        vertical: viewSettings.spacing,
+      },
+      targetRowHeight: viewSettings.size,
       // targetRowHeightTolerance: 0,
       // forceAspectRatio: 1,
       // fullWidthBreakoutRowCadence: 2
-    }
+    },
   );
 
   return (
     <div>
-      <div className="flex h-12 items-center text-sm">
-        <span>{date}</span>
-      </div>
+      {title && (
+        <div className="flex h-12 items-center text-sm">
+          <span>{title}</span>
+        </div>
+      )}
       <div
         style={{
           height: layout.containerHeight,

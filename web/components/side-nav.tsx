@@ -22,31 +22,31 @@ export default function SideNav() {
         <ul className="menu menu-lg rounded-box w-56">
           <li>
             <Link className="rounded-full leading-6 text-sm" href="/photos">
-              <PhotoIcon className="size-5" />
+              <PhotoIcon className="size-6" />
               Photos
             </Link>
           </li>
           <li>
             <Link className="rounded-full leading-6 text-sm" href="/albums">
-              <FolderOpenIcon className="size-5" />
+              <FolderOpenIcon className="size-6" />
               Albums
             </Link>
           </li>
           <li>
             <Link className="rounded-full leading-6 text-sm" href="/explorer">
-              <GlobeAsiaAustraliaIcon className="size-5" />
+              <GlobeAsiaAustraliaIcon className="size-6" />
               Explorer
             </Link>
             <ul>
               <li>
                 <Link className="rounded-full leading-6 text-sm" href="/people">
-                  <UsersIcon className="size-5" />
+                  <UsersIcon className="size-6" />
                   People
                 </Link>
               </li>
               <li>
                 <Link className="rounded-full leading-6 text-sm" href="/places">
-                  <MapPinIcon className="size-5" />
+                  <MapPinIcon className="size-6" />
                   Places
                 </Link>
               </li>
@@ -55,7 +55,7 @@ export default function SideNav() {
                   className="rounded-full leading-6 text-sm"
                   href="/favorites"
                 >
-                  <HeartIcon className="size-5" />
+                  <HeartIcon className="size-6" />
                   Favorites
                 </Link>
               </li>
@@ -63,13 +63,13 @@ export default function SideNav() {
           </li>
           <li>
             <Link className="rounded-full leading-6 text-sm" href="/my">
-              <UserIcon className="size-5" />
+              <UserIcon className="size-6" />
               My
             </Link>
           </li>
           <li>
             <Link className="rounded-full leading-6 text-sm" href="/trash">
-              <TrashIcon className="size-5" />
+              <TrashIcon className="size-6" />
               Trash
             </Link>
           </li>

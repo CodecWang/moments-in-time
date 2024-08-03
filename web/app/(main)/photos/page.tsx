@@ -1,23 +1,26 @@
 "use client";
 
 import Photos from "@/components/photos";
-import { ArrowUpTrayIcon } from "@heroicons/react/24/outline";
-import { ViewColumnsIcon } from "@heroicons/react/24/outline";
-import { FunnelIcon } from "@heroicons/react/24/outline";
+import {
+  ArrowUpTrayIcon,
+  FunnelIcon,
+  ViewColumnsIcon,
+} from "@heroicons/react/24/outline";
 import { useEffect, useState } from "react";
-import LayoutSettings from "./layout-settings";
-
-enum GroupedBy {
-  NoGroup,
-  Day,
-  Month,
-  Year,
-}
+import LayoutSettings from "./photos-view";
+import { useContext } from "react";
+import { NavContext } from "../nav-provider";
+import { GroupedBy } from "@/enums";
+import { PhotosViewSetting } from "@/type";
+import { defaultPhotosViewSetting } from "@/constants";
 
 export default function Page() {
+  const { navMode } = useContext(NavContext);
   const [rawPhotos, setRawPhotos] = useState<any[]>([]);
-  const [photos, setPhotos] = useState<any[]>([]);
-  const [groupedBy, setGroupedBy] = useState(GroupedBy.Day);
+  const [photoGroups, setPhotoGroups] = useState<PhotoGroup[]>([]);
+  const [photosViewSetting, setPhotosViewSetting] = useState<PhotosViewSetting>(
+    defaultPhotosViewSetting,
+  );
 
   useEffect(() => {
     (async () => {
@@ -29,7 +32,13 @@ export default function Page() {
 
   useEffect(() => {
     if (!rawPhotos.length) return;
-    if (groupedBy === GroupedBy.NoGroup) return setPhotos(rawPhotos);
+    if (photosViewSetting.groupBy === GroupedBy.NoGroup)
+      return setPhotoGroups([
+        {
+          title: "",
+          photos: rawPhotos,
+        },
+      ]);
 
     const groupedPhotos = rawPhotos.reduce(
       (acc: { [key: string]: Photo[] }, photo) => {
@@ -42,7 +51,7 @@ export default function Page() {
           day: "numeric",
         };
 
-        switch (groupedBy) {
+        switch (photosViewSetting.groupBy) {
           case GroupedBy.Year:
             options = { year: "numeric" };
             break;
@@ -60,72 +69,59 @@ export default function Page() {
         acc[date].push(photo);
         return acc;
       },
-      {}
+      {},
     );
     const photos = Object.keys(groupedPhotos).map((date) => ({
-      date,
+      title: date,
       photos: groupedPhotos[date],
     }));
 
-    setPhotos(photos);
-  }, [rawPhotos, groupedBy]);
+    setPhotoGroups(photos);
+  }, [rawPhotos, photosViewSetting]);
 
   return (
-    <div className="flex">
-      <div className="flex-grow">
-        <div className="bg-base-100 p-2 text-base-content sticky top-0 z-10 flex w-full h-16 bg-opacity-90 backdrop-blur transition-shadow duration-100 [transform:translate3d(0,0,0)] border-b border-b-base-300">
-          <div className="prose flex items-center px-4">
-            <h3>Photos</h3>
+    <div className="absolute flex h-full w-full">
+      <div className="flex-grow overflow-y-auto sm:pt-3">
+        <div className="sticky top-0 z-10 flex h-14 w-full items-center border-b border-gray-300 bg-base-100 px-4 py-2">
+          <span className="sm:text-xl">Photos</span>
+
+          <div className="flex flex-1 justify-end">
+            {navMode === 0 && (
+              <button className="btn btn-ghost">
+                <ArrowUpTrayIcon className="size-5" />
+                Upload
+              </button>
+            )}
+
+            <button className="btn btn-ghost">
+              <ViewColumnsIcon className="size-5" /> Zen Mode
+            </button>
+            <button className="btn btn-circle btn-ghost">
+              <ViewColumnsIcon className="size-5" />
+            </button>
+            <button
+              className="btn btn-circle btn-ghost"
+              onClick={() => {
+                const sidebar = document.getElementById("sidebar");
+
+                sidebar.classList.toggle("hidden");
+              }}
+            >
+              <FunnelIcon className="size-5" />
+            </button>
           </div>
-
-          <div className="join m-auto">
-            <input
-              className="join-item btn"
-              type="radio"
-              name="options"
-              onChange={() => setGroupedBy(GroupedBy.Day)}
-              aria-label="Day"
-            />
-            <input
-              className="join-item btn"
-              type="radio"
-              name="options"
-              onChange={() => setGroupedBy(GroupedBy.Month)}
-              aria-label="Month"
-            />
-            <input
-              className="join-item btn"
-              type="radio"
-              name="options"
-              onChange={() => setGroupedBy(GroupedBy.Year)}
-              aria-label="Year"
-            />
-          </div>
-
-          <button className="btn btn-ghost">
-            <ArrowUpTrayIcon className="size-4" />
-            Upload
-          </button>
-          <button className="btn btn-circle btn-ghost">
-            <ViewColumnsIcon className="size-5" />
-          </button>
-          <button
-            className="btn btn-circle btn-ghost"
-            onClick={() => {
-              const sidebar = document.getElementById("sidebar");
-
-              sidebar.classList.toggle("hidden");
-            }}
-          >
-            <FunnelIcon className="size-5" />
-          </button>
         </div>
 
         <div className="px-4 pt-2">
-          <Photos data={photos} />
+          <Photos data={photoGroups} viewSettings={photosViewSetting} />
         </div>
       </div>
-      <LayoutSettings />
+      <LayoutSettings
+        settings={photosViewSetting}
+        onChange={(newSettings) => {
+          setPhotosViewSetting((prev) => ({ ...prev, ...newSettings }));
+        }}
+      />
     </div>
   );
 }

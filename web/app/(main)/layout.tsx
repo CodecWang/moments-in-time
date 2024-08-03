@@ -6,6 +6,7 @@ import "./globals.css";
 import { ReactNode } from "react";
 import { NavProvider } from "./nav-provider";
 import { ThemeProvider } from "next-themes";
+
 const inter = Inter({ subsets: ["latin"] });
 
 // export const metadata: Metadata = {
@@ -20,7 +21,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
+      <body className={inter.className + " h-full overflow-hidden"}>
         <ThemeProvider>
           <NavProvider>{children}</NavProvider>
         </ThemeProvider>
