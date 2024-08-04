@@ -1,83 +1,43 @@
 "use client";
 
 import Photos from "@/components/photos";
-import {
-  ArrowUpTrayIcon,
-  FunnelIcon,
-  ViewColumnsIcon,
-} from "@heroicons/react/24/outline";
+import { FunnelIcon, ViewColumnsIcon } from "@heroicons/react/24/outline";
 import { useEffect, useState } from "react";
-import LayoutSettings from "./photos-view";
+import PhotosView from "./photos-view";
 import { useContext } from "react";
 import { NavContext } from "../nav-provider";
-import { GroupedBy } from "@/enums";
-import { PhotosViewSetting } from "@/type";
-import { defaultPhotosViewSetting } from "@/constants";
+import { GroupBy, NavMode } from "@/enums";
+import { PhotoGroup, PhotosViewSetting } from "@/type";
+import { DEFAULT_PHOTOS_VIEW } from "@/constants";
+import Upload from "@/components/upload";
+import { groupPhotoByDate } from "./utils";
 
-export default function Page() {
+export default function Page({ searchParams }) {
   const { navMode } = useContext(NavContext);
   const [rawPhotos, setRawPhotos] = useState<any[]>([]);
   const [photoGroups, setPhotoGroups] = useState<PhotoGroup[]>([]);
-  const [photosViewSetting, setPhotosViewSetting] = useState<PhotosViewSetting>(
-    defaultPhotosViewSetting,
-  );
+  const [photosView, setPhotosView] =
+    useState<PhotosViewSetting>(DEFAULT_PHOTOS_VIEW);
 
   useEffect(() => {
     (async () => {
-      const response = await fetch("/api/v1/photos");
+      const params = new URLSearchParams(searchParams);
+      const response = await fetch(`/api/v1/photos?${params.toString()}`);
       const rawPhotos = await response.json();
       setRawPhotos(rawPhotos);
     })();
-  }, []);
+  }, [searchParams]);
 
   useEffect(() => {
     if (!rawPhotos.length) return;
-    if (photosViewSetting.groupBy === GroupedBy.NoGroup)
-      return setPhotoGroups([
-        {
-          title: "",
-          photos: rawPhotos,
-        },
-      ]);
 
-    const groupedPhotos = rawPhotos.reduce(
-      (acc: { [key: string]: Photo[] }, photo) => {
-        const dateObj = new Date(photo.shotTime);
-
-        let options = {
-          weekday: "short",
-          year: "numeric",
-          month: "short",
-          day: "numeric",
-        };
-
-        switch (photosViewSetting.groupBy) {
-          case GroupedBy.Year:
-            options = { year: "numeric" };
-            break;
-          case GroupedBy.Month:
-            options = { year: "numeric", month: "short" };
-            break;
-          case GroupedBy.Day:
-          default:
-            break;
-        }
-
-        const date = dateObj.toLocaleDateString("en-US", options);
-
-        if (!acc[date]) acc[date] = [];
-        acc[date].push(photo);
-        return acc;
-      },
-      {},
-    );
-    const photos = Object.keys(groupedPhotos).map((date) => ({
-      title: date,
-      photos: groupedPhotos[date],
-    }));
-
+    const photos = groupPhotoByDate(rawPhotos, photosView.groupBy);
     setPhotoGroups(photos);
-  }, [rawPhotos, photosViewSetting]);
+  }, [rawPhotos, photosView]);
+
+  const handleViewChange = (newView: PhotosViewSetting) => {
+    setPhotosView((prev) => ({ ...prev, ...newView }));
+  };
 
   return (
     <div className="absolute flex h-full w-full">
@@ -86,42 +46,33 @@ export default function Page() {
           <span className="sm:text-xl">Photos</span>
 
           <div className="flex flex-1 justify-end">
-            {navMode === 0 && (
-              <button className="btn btn-ghost">
-                <ArrowUpTrayIcon className="size-5" />
-                Upload
+            {navMode === NavMode.Modern && <Upload />}
+
+            <div className="tooltip tooltip-bottom" data-tip="View">
+              <button
+                className="btn btn-circle btn-ghost"
+                onClick={() => {
+                  const sidebar = document.getElementById("sidebar");
+
+                  sidebar.classList.toggle("hidden");
+                }}
+              >
+                <ViewColumnsIcon className="size-5" />
               </button>
-            )}
-
-            <button className="btn btn-ghost">
-              <ViewColumnsIcon className="size-5" /> Zen Mode
-            </button>
-            <button className="btn btn-circle btn-ghost">
-              <ViewColumnsIcon className="size-5" />
-            </button>
-            <button
-              className="btn btn-circle btn-ghost"
-              onClick={() => {
-                const sidebar = document.getElementById("sidebar");
-
-                sidebar.classList.toggle("hidden");
-              }}
-            >
-              <FunnelIcon className="size-5" />
-            </button>
+            </div>
+            <div className="tooltip tooltip-bottom" data-tip="Filter">
+              <button className="btn btn-circle btn-ghost">
+                <FunnelIcon className="size-5" />
+              </button>
+            </div>
           </div>
         </div>
 
         <div className="px-4 pt-2">
-          <Photos data={photoGroups} viewSettings={photosViewSetting} />
+          <Photos data={photoGroups} view={photosView} />
         </div>
       </div>
-      <LayoutSettings
-        settings={photosViewSetting}
-        onChange={(newSettings) => {
-          setPhotosViewSetting((prev) => ({ ...prev, ...newSettings }));
-        }}
-      />
+      <PhotosView view={photosView} onChange={handleViewChange} />
     </div>
   );
 }

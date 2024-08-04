@@ -2,46 +2,45 @@ import justifiedLayout from "justified-layout";
 import { Photo } from "./photo";
 import { useEffect, useRef, useState } from "react";
 import { PhotosViewSetting } from "@/type";
+import Image from "next/image";
+import { GalleryLayout } from "@/enums";
 
 interface PhotosProps {
   data: PhotoGroup[];
-  viewSettings: PhotosViewSetting;
+  view: PhotosViewSetting;
 }
 
-export default function Photos({ data, viewSettings }: PhotosProps) {
-  console.log(data);
-
-  const wrapRef = useRef<HTMLDivElement>(null);
-  const [viewportWidth, setViewportWidth] = useState(null);
+export default function Photos({ data, view: viewSettings }: PhotosProps) {
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const [viewportWidth, setViewportWidth] = useState(0);
 
   useEffect(() => {
-    const handleResize = (entries) => {
-      console.log(entries);
-
-      for (let entry of entries) {
+    const handleResize = (entries: ResizeObserverEntry[]) => {
+      for (const entry of entries) {
         setViewportWidth(entry.contentRect.width);
       }
     };
 
     const resizeObserver = new ResizeObserver(handleResize);
+    const currentViewportRef = viewportRef.current;
 
-    if (wrapRef.current) {
-      resizeObserver.observe(wrapRef.current);
+    if (currentViewportRef) {
+      resizeObserver.observe(currentViewportRef);
     }
 
     return () => {
-      if (wrapRef.current) {
-        resizeObserver.unobserve(wrapRef.current);
+      if (currentViewportRef) {
+        resizeObserver.unobserve(currentViewportRef);
       }
     };
   }, []);
 
   if (!viewportWidth || !data.length) {
-    return <div ref={wrapRef}>No photos</div>;
+    return <div ref={viewportRef}>No photos</div>;
   }
 
   return (
-    <div ref={wrapRef}>
+    <div ref={viewportRef}>
       {data.map(({ title, photos }, index) => (
         <PhotoGroup
           key={index}
@@ -97,29 +96,54 @@ function PhotoGroup({
           <span>{title}</span>
         </div>
       )}
-      <div
-        style={{
-          height: layout.containerHeight,
-          position: "relative",
-          overflow: "hidden",
-        }}
-      >
-        {layout.boxes.map(({ width, height, top, left }, index) => (
-          <Photo
-            photo={photos[index]}
-            style={{ top, left, position: "absolute" }}
-            key={photos[index].id}
-            src={`/api/v1/photos/${photos[index].id}/thumbnail?variant=2`}
-            width={width}
-            height={height}
-            top={top}
-            left={left}
-            index={index}
-            onClick={onClick}
-            onSelect={onSelect}
-          />
-        ))}
-      </div>
+
+      {viewSettings.layout === GalleryLayout.Justified && (
+        <div
+          className="relative overflow-hidden"
+          style={{ height: layout.containerHeight }}
+        >
+          {layout.boxes.map(({ width, height, top, left }, index) => (
+            <Photo
+              photo={photos[index]}
+              key={photos[index].id}
+              src={`/api/v1/photos/${photos[index].id}/thumbnail?variant=2`}
+              width={width}
+              height={height}
+              top={top}
+              left={left}
+              onClick={onClick}
+              onSelect={onSelect}
+            />
+          ))}
+        </div>
+      )}
+
+      {(viewSettings.layout === GalleryLayout.Grid ||
+        viewSettings.layout === GalleryLayout.Grid1x1) && (
+        <div className="grid grid-cols-4" style={{ gap: viewSettings.spacing }}>
+          {photos.map((photo) => (
+            <div
+              key={photo.id}
+              style={{ width: viewportWidth / 4, height: viewportWidth / 4 }}
+            >
+              <Image
+                style={{
+                  width: viewportWidth / 4,
+                  height: viewportWidth / 4,
+                  objectFit:
+                    viewSettings.layout === GalleryLayout.Grid1x1
+                      ? "cover"
+                      : "contain",
+                }}
+                src={`/api/v1/photos/${photo.id}/thumbnail?variant=2`}
+                width={viewportWidth / 4}
+                height={viewportWidth / 4}
+                alt=""
+              />
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

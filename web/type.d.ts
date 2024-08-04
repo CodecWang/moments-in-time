@@ -1,13 +1,20 @@
-import { GroupedBy, PhotosLayout } from "@/enums";
+import { GroupBy, GalleryLayout } from "@/enums";
 
 interface PhotosViewSetting {
-  groupBy?: GroupedBy;
-  layout?: PhotosLayout;
+  groupBy?: GroupBy;
+  layout?: GalleryLayout;
   spacing?: number;
   size?: number;
 }
 
 interface PhotoGroup {
   title: string;
+  photos: Photo[];
+}
+
+interface Album {
+  id: number;
+  title: number;
+  cover: Photo;
   photos: Photo[];
 }

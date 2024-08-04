@@ -1,12 +1,8 @@
 import Header from "@/components/header";
 import NavBar from "@/components/nav-bar";
 import SideNav from "@/components/side-nav";
+import { NavMode } from "@/enums";
 import { createContext, ReactNode, useState } from "react";
-
-enum NavMode {
-  Modern,
-  Traditional,
-}
 
 export const NavContext = createContext({
   navMode: NavMode.Modern,

@@ -4,6 +4,8 @@ import { Exif } from "./exif";
 import { Photo } from "./photo";
 import { Thumbnail } from "./thumbnail";
 
+Album.belongsTo(Photo, { as: "cover", foreignKey: "coverId" });
+
 Album.belongsToMany(Photo, {
   through: AlbumPhoto,
   as: "photos",

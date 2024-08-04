@@ -1,9 +1,9 @@
-import { GroupedBy, PhotosLayout } from "./enums";
+import { GroupBy, GalleryLayout } from "./enums";
 import { PhotosViewSetting } from "./type";
 
-export const defaultPhotosViewSetting: PhotosViewSetting = {
-  groupBy: GroupedBy.Day,
-  layout: PhotosLayout.Justified,
+export const DEFAULT_PHOTOS_VIEW: PhotosViewSetting = {
+  groupBy: GroupBy.Day,
+  layout: GalleryLayout.Justified,
   spacing: 2,
   size: 220,
 };

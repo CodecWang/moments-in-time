@@ -5,6 +5,7 @@ import {
   SunIcon,
 } from "@heroicons/react/24/outline";
 import { useTheme } from "next-themes";
+import Upload from "./upload";
 
 export default function Header() {
   const { theme, setTheme } = useTheme();
@@ -24,28 +25,29 @@ export default function Header() {
           <a className="text-xl">Here Photos</a>
         </div>
         <div className="flex-none">
-          <button className="btn btn-ghost">
-            <ArrowUpTrayIcon className="size-6 md:size-5" />
-            <span className="hidden md:inline">Upload</span>
-          </button>
+          <Upload />
 
-          {/* <button className="btn btn-circle btn-ghost"> */}
-          <label className="swap swap-rotate">
-            <input
-              type="checkbox"
-              className="theme-controller"
-              checked={theme !== "dark"}
-              onChange={(e) => {
-                console.log(e.target.checked, theme);
+          <div
+            className="tooltip tooltip-bottom"
+            data-tip={theme === "dark" ? "Light" : "Dark"}
+          >
+            <button className="btn btn-circle btn-ghost">
+              <label className="swap swap-rotate">
+                <input
+                  type="checkbox"
+                  className="theme-controller"
+                  checked={theme !== "dark"}
+                  onChange={(e) => {
+                    console.log(e.target.checked, theme);
 
-                setTheme(e.target.checked ? "light" : "dark");
-              }}
-            />
-
-            <SunIcon className="swap-off size-6" />
-            <MoonIcon className="swap-on size-6" />
-          </label>
-          {/* </button> */}
+                    setTheme(e.target.checked ? "light" : "dark");
+                  }}
+                />
+                <SunIcon className="swap-off size-6" />
+                <MoonIcon className="swap-on size-6" />
+              </label>
+            </button>
+          </div>
         </div>
       </nav>
     </div>

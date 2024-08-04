@@ -1,12 +1,18 @@
-export enum GroupedBy {
-  NoGroup,
+export enum GroupBy {
+  NoGroup = 1,
   Day,
   Month,
   Year,
 }
 
-export enum PhotosLayout {
+export enum GalleryLayout {
   Grid,
+  Grid1x1,
   Justified,
   Masonry,
+}
+
+export enum NavMode {
+  Modern,
+  Traditional,
 }

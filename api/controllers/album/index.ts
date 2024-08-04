@@ -3,7 +3,24 @@ import { Album, Exif, Photo, Thumbnail } from "../../models";
 
 export default class AlbumController {
   public static async getAllAlbums(ctx: Context) {
-    ctx.body = await Album.findAll();
+    ctx.body = await Album.findAll({
+      include: [
+        {
+          model: Photo,
+          as: "cover",
+          include: [
+            {
+              model: Exif,
+              as: "exif",
+            },
+            {
+              model: Thumbnail,
+              as: "thumbnails",
+            },
+          ],
+        },
+      ],
+    });
   }
 
   public static async deleteAlbums(ctx: Context) {
