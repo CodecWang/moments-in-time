@@ -1,8 +1,11 @@
 "use client";
 
+import PageHeader from "@/components/page-header";
 import { Album } from "@/type";
+import { ArrowUpTrayIcon, FolderPlusIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import CreateAlbumModal from "./create-album-modal";
 
 export default function Page() {
   const [albums, setAlbums] = useState<Album[]>([]);
@@ -16,12 +19,23 @@ export default function Page() {
 
   return (
     <div>
-      <h1>Albums Page</h1>
+      <CreateAlbumModal />
+      <PageHeader title="Albums">
+        <div className="tooltip tooltip-bottom" data-tip="Create album">
+          <button
+            className="btn btn-ghost"
+            onClick={() => document.getElementById("my_modal_5").showModal()}
+          >
+            <FolderPlusIcon className="size-6 md:size-5" />
+            <span className="hidden md:inline">Create album</span>
+          </button>
+        </div>
+      </PageHeader>
 
       <div className="flex">
         {albums.map((album, index) => (
           <Link href={`/album/${album.id}`} key={index}>
-            <div className="card w-96 bg-base-100 shadow-xl">
+            <div className="card m-4 w-96 bg-base-100 shadow-xl">
               <figure>
                 <img
                   style={{ width: "100%", height: "200px", objectFit: "cover" }}
