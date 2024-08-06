@@ -11,11 +11,11 @@ export default function Header() {
   const { theme, setTheme } = useTheme();
 
   return (
-    <div className="fixed top-0 z-20 flex h-16 w-full justify-center bg-base-200 text-base-content">
+    <header className="fixed top-0 z-20 flex h-16 w-full justify-center bg-base-200 text-base-content">
       <nav className="navbar bg-base-200">
         <div className="flex-none">
           <label
-            htmlFor="drawer"
+            htmlFor="side-nav-drawer"
             className="btn btn-square btn-ghost drawer-button lg:hidden"
           >
             <Bars3Icon className="size-6" />
@@ -50,6 +50,6 @@ export default function Header() {
           </div>
         </div>
       </nav>
-    </div>
+    </header>
   );
 }

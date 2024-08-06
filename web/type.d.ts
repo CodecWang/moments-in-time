@@ -7,14 +7,13 @@ interface PhotosViewSetting {
   size?: number;
 }
 
-interface PhotoGroup {
+interface Photo {
+  id: number;
   title: string;
-  photos: Photo[];
+  shotTime: Date;
 }
 
-interface Album {
-  id: number;
-  title: number;
-  cover: Photo;
+interface PhotoGroup {
+  title: string;
   photos: Photo[];
 }

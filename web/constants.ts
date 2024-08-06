@@ -7,3 +7,7 @@ export const DEFAULT_PHOTOS_VIEW: PhotosViewSetting = {
   spacing: 2,
   size: 220,
 };
+
+export const CACHE_KEY = {
+  groupAlbumsBy: "group-albums-by",
+};

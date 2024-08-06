@@ -15,12 +15,12 @@ export default function PhotosView({ view, onChange }: PhotosViewProps) {
     <div
       id="sidebar"
       className={`w-72 overflow-y-auto border-l border-l-gray-300 bg-base-100 sm:pt-3 ${
-        open ? "hidden" : ""
+        open ? "" : "hidden"
       }`}
     >
-      <div className="flex h-14 flex-row items-center border-b border-gray-300 px-4 py-2">
+      {/* <div className="flex h-14 flex-row items-center border-b border-gray-300 px-4 py-2">
         <span className="text-base sm:text-xl">View setting</span>
-      </div>
+      </div> */}
       <div className="p-4">
         <div className="border-b border-gray-900/10 pb-12">
           <div>

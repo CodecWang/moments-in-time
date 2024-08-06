@@ -9,72 +9,89 @@ import {
   UsersIcon,
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 
-export default function SideNav() {
+export default function SideNav(params) {
+  const router = useRouter();
+  const pathname = usePathname();
+  console.log("hhh", params, router, router.pathname, pathname);
+
+  const menu = [
+    {
+      title: "Photos",
+      icon: PhotoIcon,
+      href: "/photos",
+    },
+    {
+      title: "Explorer",
+      icon: GlobeAsiaAustraliaIcon,
+      href: "/explorer",
+    },
+    {
+      title: "Sharing",
+      icon: UserIcon,
+      href: "/sharing",
+    },
+    {
+      isDivider: true,
+    },
+    {
+      title: "Albums",
+      icon: FolderOpenIcon,
+      href: "/albums",
+    },
+    {
+      title: "People",
+      icon: UsersIcon,
+      href: "/people",
+    },
+    {
+      title: "Places",
+      icon: MapPinIcon,
+      href: "/places",
+    },
+    {
+      title: "Favorites",
+      icon: HeartIcon,
+      href: "/favorites",
+    },
+    {
+      title: "Trash",
+      icon: TrashIcon,
+      href: "/trash",
+    },
+  ];
+
+  const libMenu = [];
+
   return (
-    <div className="drawer-side h-full">
+    <aside className="drawer-side z-20 h-full">
       <label
-        htmlFor="drawer"
+        htmlFor="side-nav-drawer"
         aria-label="close sidebar"
         className="drawer-overlay"
       ></label>
-      <ul className="menu bg-base-200 text-base-content h-full w-64 p-4">
-        <ul className="menu menu-lg rounded-box w-56">
-          <li>
-            <Link className="rounded-full leading-6 text-sm" href="/photos">
-              <PhotoIcon className="size-6" />
-              Photos
-            </Link>
-          </li>
-          <li>
-            <Link className="rounded-full leading-6 text-sm" href="/albums">
-              <FolderOpenIcon className="size-6" />
-              Albums
-            </Link>
-          </li>
-          <li>
-            <Link className="rounded-full leading-6 text-sm" href="/explorer">
-              <GlobeAsiaAustraliaIcon className="size-6" />
-              Explorer
-            </Link>
-            <ul>
-              <li>
-                <Link className="rounded-full leading-6 text-sm" href="/people">
-                  <UsersIcon className="size-6" />
-                  People
-                </Link>
+      <ul className="menu h-full w-64 bg-base-200 px-4">
+        <ul className="menu menu-lg w-56">
+          {menu.map((item, index) =>
+            item.isDivider ? (
+              <li key={index} className="menu-title">
+                LIBRARY
               </li>
-              <li>
-                <Link className="rounded-full leading-6 text-sm" href="/places">
-                  <MapPinIcon className="size-6" />
-                  Places
-                </Link>
-              </li>
-              <li>
+            ) : (
+              <li key={index}>
                 <Link
-                  className="rounded-full leading-6 text-sm"
-                  href="/favorites"
+                  className={`rounded-full text-sm leading-6 ${pathname.startsWith(item.href) ? "active" : ""}`}
+                  href={item.href}
                 >
-                  <HeartIcon className="size-6" />
-                  Favorites
+                  <item.icon className="size-6" />
+                  {item.title}
                 </Link>
               </li>
-            </ul>
-          </li>
-          <li>
-            <Link className="rounded-full leading-6 text-sm" href="/my">
-              <UserIcon className="size-6" />
-              My
-            </Link>
-          </li>
-          <li>
-            <Link className="rounded-full leading-6 text-sm" href="/trash">
-              <TrashIcon className="size-6" />
-              Trash
-            </Link>
-          </li>
+            ),
+          )}
         </ul>
       </ul>
-    </div>
+    </aside>
   );
 }

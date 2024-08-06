@@ -38,25 +38,39 @@ export const NavProvider = ({
     setNavMode,
   };
 
+  const ModernLayout = () => {
+    return (
+      <div className="absolute flex h-full w-full overflow-hidden">
+        {children}
+        <NavBar />
+      </div>
+    );
+  };
+
+  const TraditionalLayout = () => {
+    return (
+      <div className="flex h-lvh flex-col">
+        <Header />
+        <main className="drawer h-full flex-grow overflow-hidden bg-base-100 pt-16 lg:drawer-open">
+          <input
+            id="side-nav-drawer"
+            type="checkbox"
+            className="drawer-toggle"
+          />
+          <section className="drawer-content relative">
+            <div className="absolute flex h-full w-full overflow-hidden">
+              {children}
+            </div>
+          </section>
+          <SideNav />
+        </main>
+      </div>
+    );
+  };
+
   return (
     <NavContext.Provider value={providerValue}>
-      {navMode === NavMode.Modern ? (
-        <>
-          {children}
-          <NavBar />
-        </>
-      ) : (
-        <div className="flex h-lvh flex-col">
-          <Header />
-          <div className="flex-grow pt-16">
-            <div className="drawer h-full overflow-hidden bg-base-100 lg:drawer-open">
-              <input id="drawer" type="checkbox" className="drawer-toggle" />
-              <div className="drawer-content relative">{children}</div>
-              <SideNav />
-            </div>
-          </div>
-        </div>
-      )}
+      {navMode === NavMode.Modern ? <ModernLayout /> : <TraditionalLayout />}
     </NavContext.Provider>
   );
 };

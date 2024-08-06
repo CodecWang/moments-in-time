@@ -1,39 +1,29 @@
 import { GroupBy } from "@/enums";
+import { Photo } from "@/type";
 
-export function groupPhotoByDate(rawPhotos: Photo[], groupBy?: GroupBy) {
+export function groupPhotoByDate(photos: Photo[], groupBy?: GroupBy) {
   if (!groupBy || groupBy === GroupBy.NoGroup) {
-    return [
-      {
-        title: "",
-        photos: rawPhotos,
-      },
-    ];
+    return [{ photos, title: "" }];
   }
 
-  const groupedPhotos = rawPhotos.reduce(
+  const optionsMap: { [key in GroupBy]?: Intl.DateTimeFormatOptions } = {
+    [GroupBy.Year]: { year: "numeric" },
+    [GroupBy.Month]: { year: "numeric", month: "short" },
+    [GroupBy.Day]: {
+      weekday: "short",
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    },
+  };
+
+  const options = optionsMap[groupBy];
+  const groupedPhotos = photos.reduce(
     (acc: { [key: string]: Photo[] }, photo) => {
-      const dateObj = new Date(photo.shotTime);
-
-      let options: Intl.DateTimeFormatOptions = {
-        weekday: "short",
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      };
-
-      switch (groupBy) {
-        case GroupBy.Year:
-          options = { year: "numeric" };
-          break;
-        case GroupBy.Month:
-          options = { year: "numeric", month: "short" };
-          break;
-        case GroupBy.Day:
-        default:
-          break;
-      }
-
-      const date = dateObj.toLocaleDateString("en-US", options);
+      const date = new Date(photo.shotTime).toLocaleDateString(
+        "en-US",
+        options,
+      );
 
       if (!acc[date]) acc[date] = [];
       acc[date].push(photo);
@@ -42,8 +32,15 @@ export function groupPhotoByDate(rawPhotos: Photo[], groupBy?: GroupBy) {
     {},
   );
 
-  return Object.keys(groupedPhotos).map((date) => ({
-    title: date,
-    photos: groupedPhotos[date],
-  }));
+  return (
+    Object.entries(groupedPhotos)
+      // .sort(
+      //   ([dateA], [dateB]) =>
+      //     new Date(dateA).getTime() - new Date(dateB).getTime(),
+      // )
+      .map(([date, photos]) => ({
+        photos,
+        title: date,
+      }))
+  );
 }
