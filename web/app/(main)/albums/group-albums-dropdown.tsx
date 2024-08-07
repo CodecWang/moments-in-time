@@ -1,6 +1,7 @@
-import { FolderPlusIcon } from "@heroicons/react/24/outline";
 import { MouseEventHandler } from "react";
 import { GroupAlbumsBy } from "./type";
+import AdGroupOffIcon from "@/icons/ad-group-off-icon";
+import AdGroupIcon from "@/icons/ad-group-icon";
 
 interface GroupAlbumsDropdownProps {
   groupBy: GroupAlbumsBy;
@@ -20,7 +21,12 @@ export function GroupAlbumsDropdown({
   return (
     <div className="dropdown dropdown-end">
       <div tabIndex={0} role="button" className="btn btn-ghost m-1">
-        <FolderPlusIcon className="size-6 md:size-5" />
+        {groupBy === GroupAlbumsBy.None ? (
+          <AdGroupOffIcon className="size-6 md:size-5" />
+        ) : (
+          <AdGroupIcon className="size-6 md:size-5" />
+        )}
+
         {groupBy}
       </div>
       <ul

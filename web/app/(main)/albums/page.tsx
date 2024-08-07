@@ -2,7 +2,6 @@
 
 import PageHeader from "@/components/page-header";
 import { Album } from "@/type";
-import { PlusIcon } from "@heroicons/react/24/outline";
 import { useEffect, useState } from "react";
 import CreateAlbumModal from "./create-album-modal";
 import AlbumGroup from "./album-group";
@@ -10,6 +9,7 @@ import { groupAlbumsByYear } from "./utils";
 import { GroupAlbumsBy } from "./type";
 import { GroupAlbumsDropdown } from "./group-albums-dropdown";
 import { CACHE_KEY } from "@/constants";
+import CreateNewFolderIcon from "@/icons/create-new-folder-icon";
 
 export default function Page() {
   const [albums, setAlbums] = useState<Album[]>([]);
@@ -56,7 +56,7 @@ export default function Page() {
             className="btn btn-ghost"
             onClick={() => document.getElementById("my_modal_5").showModal()}
           >
-            <PlusIcon className="size-6 md:size-5" />
+            <CreateNewFolderIcon className="size-6 md:size-5" />
             <span className="hidden md:inline">Create album</span>
           </button>
         </div>
@@ -64,14 +64,16 @@ export default function Page() {
         <GroupAlbumsDropdown groupBy={groupBy} onChange={handleGroupByChange} />
       </PageHeader>
 
-      {albumGroups.map((group, index) => (
-        <AlbumGroup
-          key={index}
-          title={group.title}
-          count={group.count}
-          albums={group.albums}
-        />
-      ))}
+      <div className="px-4 pt-2">
+        {albumGroups.map((group, index) => (
+          <AlbumGroup
+            key={index}
+            title={group.title}
+            count={group.count}
+            albums={group.albums}
+          />
+        ))}
+      </div>
 
       <CreateAlbumModal />
     </div>

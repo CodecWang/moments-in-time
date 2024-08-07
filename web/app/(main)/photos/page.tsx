@@ -1,7 +1,6 @@
 "use client";
 
 import Photos from "@/components/photos";
-import { FunnelIcon, ViewColumnsIcon } from "@heroicons/react/24/outline";
 import { useEffect, useState } from "react";
 import PhotosView from "../../../components/photos-view";
 import { useContext } from "react";
@@ -13,6 +12,8 @@ import Upload from "@/components/upload";
 import { groupPhotoByDate } from "./utils";
 import PageHeader from "@/components/page-header";
 import { useRouter } from "next/navigation";
+import TuneIcon from "@/icons/tune-icon";
+import FilterAltIcon from "@/icons/filter-alt-icon";
 
 export default function Page({ searchParams }) {
   const router = useRouter();
@@ -52,7 +53,7 @@ export default function Page({ searchParams }) {
         <PageHeader title="Photos">
           {navMode === NavMode.Modern && <Upload />}
 
-          <div className="tooltip tooltip-bottom" data-tip="View">
+          <div className="tooltip tooltip-bottom" data-tip="Layout setting">
             <button
               className="btn btn-circle btn-ghost"
               onClick={() => {
@@ -61,12 +62,12 @@ export default function Page({ searchParams }) {
                 sidebar.classList.toggle("hidden");
               }}
             >
-              <ViewColumnsIcon className="size-5" />
+              <TuneIcon className="size-5" />
             </button>
           </div>
           <div className="tooltip tooltip-bottom" data-tip="Filter">
             <button className="btn btn-circle btn-ghost">
-              <FunnelIcon className="size-5" />
+              <FilterAltIcon className="size-5" />
             </button>
           </div>
         </PageHeader>

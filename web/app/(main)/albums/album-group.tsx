@@ -1,6 +1,6 @@
-import { ChevronRightIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { useState } from "react";
+import ChevronRightIcon from "@/icons/chevron-right-icon";
 
 interface AlbumGroupProps {
   title: string;
@@ -18,22 +18,30 @@ export default function AlbumGroup({ title, count, albums }: AlbumGroupProps) {
   return (
     <div>
       {title && count && (
-        <div className="w-full border-b border-b-blue-100">
-          <button
-            className="btn btn-ghost flex items-center"
+        <div className="w-full border-b border-b-blue-100 p-2">
+          <div
+            className="flex items-center"
+            style={{
+              animation: "button-pop var(--animation-btn, 0.25s) ease-out",
+            }}
             onClick={toggleCollapse}
           >
             <ChevronRightIcon
-              className={`-mt-2.5 inline-block size-6 ${isCollapsed ? "rotate-0" : "rotate-90"} transition-all duration-[250ms]`}
+              className={`inline-block size-6 ${isCollapsed ? "rotate-0" : "rotate-90"} transition-all duration-[250ms]`}
             />
             <span className="text-3xl">{title}</span>
-            <span>{count} albums</span>
-          </button>
+            <span className="self-end">{count} albums</span>
+          </div>
         </div>
       )}
 
       {!isCollapsed && (
-        <div className="flex flex-wrap">
+        <div
+          className="flex flex-wrap"
+          style={{
+            animation: "button-pop var(--animation-btn, 0.25s) ease-out",
+          }}
+        >
           {albums.map((album, index) => (
             <Link href={`/albums/${album.id}`} key={index}>
               <div className="card m-4 w-96 bg-base-100 shadow-xl">

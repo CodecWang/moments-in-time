@@ -1,13 +1,11 @@
-import {
-  FolderOpenIcon,
-  GlobeAsiaAustraliaIcon,
-  HeartIcon,
-  MapPinIcon,
-  PhotoIcon,
-  TrashIcon,
-  UserIcon,
-  UsersIcon,
-} from "@heroicons/react/24/outline";
+import DeleteIcon from "@/icons/delete-icon";
+import FavoriteIcon from "@/icons/favorite-icon";
+import ImageSearchIcon from "@/icons/image-search-icon";
+import MapIcon from "@/icons/map-icon";
+import PersonSearchIcon from "@/icons/person-search-icon";
+import PhotoAlbumIcon from "@/icons/photo-album-icon";
+import PhotoIcon from "@/icons/photo-icon";
+import ShareIcon from "@/icons/share-icon";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
@@ -24,45 +22,43 @@ export default function SideNav(params) {
     },
     {
       title: "Explorer",
-      icon: GlobeAsiaAustraliaIcon,
+      icon: ImageSearchIcon,
       href: "/explorer",
     },
     {
       title: "Sharing",
-      icon: UserIcon,
-      href: "/sharing",
+      icon: ShareIcon,
+      href: "/my",
     },
     {
       isDivider: true,
     },
     {
       title: "Albums",
-      icon: FolderOpenIcon,
+      icon: PhotoAlbumIcon,
       href: "/albums",
     },
     {
       title: "People",
-      icon: UsersIcon,
+      icon: PersonSearchIcon,
       href: "/people",
     },
     {
       title: "Places",
-      icon: MapPinIcon,
+      icon: MapIcon,
       href: "/places",
     },
     {
       title: "Favorites",
-      icon: HeartIcon,
+      icon: FavoriteIcon,
       href: "/favorites",
     },
     {
       title: "Trash",
-      icon: TrashIcon,
+      icon: DeleteIcon,
       href: "/trash",
     },
   ];
-
-  const libMenu = [];
 
   return (
     <aside className="drawer-side z-20 h-full">
@@ -71,8 +67,13 @@ export default function SideNav(params) {
         aria-label="close sidebar"
         className="drawer-overlay"
       ></label>
-      <ul className="menu h-full w-64 bg-base-200 px-4">
-        <ul className="menu menu-lg w-56">
+      <ul className="menu h-full w-64 bg-base-200 px-3">
+        <ul
+          className="menu menu-lg w-56"
+          onClick={() => {
+            document.getElementById("side-nav-drawer").checked = false;
+          }}
+        >
           {menu.map((item, index) =>
             item.isDivider ? (
               <li key={index} className="menu-title">
@@ -85,7 +86,7 @@ export default function SideNav(params) {
                   href={item.href}
                 >
                   <item.icon className="size-6" />
-                  {item.title}
+                  <span className="pl-2">{item.title}</span>
                 </Link>
               </li>
             ),

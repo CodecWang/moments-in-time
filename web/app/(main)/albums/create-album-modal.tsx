@@ -118,7 +118,7 @@ export default function CreateAlbumModal() {
           <form method="dialog">
             {/* if there is a button in form, it will close the modal */}
             <button className="btn">Close</button>
-            <button className="btn" onClick={handleCreateAlbum}>
+            <button className="btn btn-primary" onClick={handleCreateAlbum}>
               Confirm
             </button>
           </form>

@@ -40,10 +40,10 @@ export const NavProvider = ({
 
   const ModernLayout = () => {
     return (
-      <div className="absolute flex h-full w-full overflow-hidden">
+      <main className="absolute flex h-full w-full overflow-hidden">
         {children}
         <NavBar />
-      </div>
+      </main>
     );
   };
 
