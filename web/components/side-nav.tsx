@@ -8,6 +8,7 @@ import PhotoIcon from "@/icons/photo-icon";
 import ShareIcon from "@/icons/share-icon";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { clsx } from "clsx";
 
 export default function SideNav(params) {
   const router = useRouter();
@@ -82,7 +83,10 @@ export default function SideNav(params) {
             ) : (
               <li key={index}>
                 <Link
-                  className={`rounded-full text-sm leading-6 ${pathname.startsWith(item.href) ? "active" : ""}`}
+                  className={clsx(
+                    "rounded-full text-sm leading-6",
+                    pathname.startsWith(item.href) && "active",
+                  )}
                   href={item.href}
                 >
                   <item.icon className="size-6" />

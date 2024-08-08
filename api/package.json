@@ -19,8 +19,7 @@
     "mysql2": "^3.10.2",
     "nanoid": "3",
     "sequelize": "^6.37.3",
-    "sharp": "^0.33.4",
-    "thumbhash": "^0.1.1"
+    "sharp": "^0.33.4"
   },
   "devDependencies": {
     "@jest/globals": "^29.7.0",

@@ -7,6 +7,7 @@ import exifReader, { Exif as ExifInfo } from "exif-reader";
 import { Exif, Photo, Thumbnail } from "../../models";
 import { calCheckSum } from "./hash";
 import sharp from "sharp";
+import { rgbaToThumbHash } from "../../utils/thumb-hash";
 
 interface ScannedFile {
   filePath: string;
@@ -21,7 +22,7 @@ export default class ScanController {
     const filePathMap = new Map<string, ScannedFile>();
     const originalDirs = [
       "/Users/arthur/coding/moments-in-time/photos/all",
-      // "/Users/arthur/coding/moments-in-time/photos/samples",
+      "/Users/arthur/coding/moments-in-time/photos/samples",
     ];
     const dirs = filterTopLevelDirectories(originalDirs);
 
@@ -36,10 +37,13 @@ export default class ScanController {
     const photoCreateOps = [];
     const photoUpdateOps = [];
 
+    console.time("handleFilesTime");
     for (const [filePath, scannedFile] of filePathMap) {
       const photo = photosMap.get(filePath);
       const buffer = await fs.readFile(filePath);
+      // console.time(`handleFilesTime ${filePath}`);
       const checkSum = await calCheckSum(buffer);
+      // console.timeEnd(`handleFilesTime ${filePath}`);
       if (!checkSum) {
         console.error("File is broken, no checkSum can be generated.");
         continue;
@@ -55,14 +59,23 @@ export default class ScanController {
       const exif = exifBuffer ? exifReader(exifBuffer) : null;
       const shotTime = exif?.Photo?.DateTimeOriginal || scannedFile.createdTime;
 
+      const thumbnails = await generateThumbnails(img, width, height, filePath);
+      const image = sharp(buffer).resize(100, 100, { fit: "inside" });
+      const { data, info } = await image
+        .ensureAlpha()
+        .raw()
+        .toBuffer({ resolveWithObject: true });
+      const binaryThumbHash = rgbaToThumbHash(info.width, info.height, data);
+      const blurHash = Buffer.from(binaryThumbHash).toString("base64");
+
       const fileInfo = {
         checkSum,
+        blurHash,
         filePath,
         shotTime,
         modifiedTime: scannedFile.modifiedTime,
       };
 
-      const thumbnails = await generateThumbnails(img, width, height, filePath);
       const exifInfo = await generateExifs(exif, shotTime);
 
       // A new photo
@@ -81,6 +94,7 @@ export default class ScanController {
         });
       }
     }
+    console.timeEnd("handleFilesTime");
 
     if (photoCreateOps.length > 0)
       await Photo.bulkCreate(photoCreateOps, {

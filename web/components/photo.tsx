@@ -1,8 +1,10 @@
+import { thumbHashToDataURL } from "@/utils/thumb-hash";
 import Image from "next/image";
+import { useState } from "react";
+import { clsx } from "clsx";
 
 interface PhotoProps {
   photo: any;
-  src: string;
   width: number;
   height: number;
   top: number;
@@ -12,7 +14,11 @@ interface PhotoProps {
 }
 
 export function Photo(props: PhotoProps) {
-  const { photo, src, width, height, top, left, onClick } = props;
+  const { photo, width, height, top, left, onClick } = props;
+
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  const blurDataURL = thumbHashToDataURL(Buffer.from(photo.blurHash, "base64"));
 
   return (
     <div
@@ -20,7 +26,19 @@ export function Photo(props: PhotoProps) {
       style={{ top, left }}
       onClick={() => onClick(photo)}
     >
-      <Image src={src} width={width} height={height} alt="" />
+      <Image
+        src={`/api/v1/photos/${photo.id}/thumbnail?variant=2`}
+        width={width}
+        height={height}
+        alt=""
+        placeholder="blur"
+        blurDataURL={blurDataURL}
+        // className={clsx(
+        //   "transition-opacity duration-700 ease-in-out",
+        //   isLoaded ? "opacity-100" : "opacity-50",
+        // )}
+        // onLoadingComplete={() => setIsLoaded(true)}
+      />
     </div>
   );
 }

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { PhotosViewSetting } from "@/type";
 import { DEFAULT_PHOTOS_VIEW } from "@/constants";
 import { GalleryLayout, GroupBy } from "@/enums";
+import { clsx } from "clsx";
 
 interface PhotosViewProps {
   onChange: (newSettings: PhotosViewSetting) => void;
@@ -14,9 +15,10 @@ export default function PhotosView({ view, onChange }: PhotosViewProps) {
   return (
     <aside
       id="sidebar"
-      className={`w-72 overflow-y-auto border-l border-l-gray-300 bg-base-100 p-4 ${
-        open ? "" : "hidden"
-      }`}
+      className={clsx(
+        "w-72 overflow-y-auto border-l border-l-gray-300 bg-base-100 p-4",
+        !open && "hidden",
+      )}
     >
       {/* <div className="flex h-14 flex-row items-center border-b border-gray-300 px-4 py-2">
         <span className="text-base sm:text-xl">View setting</span>

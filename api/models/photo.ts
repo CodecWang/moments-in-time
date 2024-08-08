@@ -28,6 +28,9 @@ Photo.init(
       type: DataTypes.CHAR(32),
       allowNull: false,
     },
+    blurHash: {
+      type: DataTypes.CHAR(28),
+    },
     shotTime: {
       type: DataTypes.DATE,
       allowNull: false,

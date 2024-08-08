@@ -106,7 +106,6 @@ function PhotoGroup({
             <Photo
               photo={photos[index]}
               key={photos[index].id}
-              src={`/api/v1/photos/${photos[index].id}/thumbnail?variant=2`}
               width={width}
               height={height}
               top={top}
