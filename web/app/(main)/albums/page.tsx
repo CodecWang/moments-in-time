@@ -54,7 +54,9 @@ export default function Page() {
         <div className="tooltip tooltip-bottom" data-tip="Create album">
           <button
             className="btn btn-ghost"
-            onClick={() => document.getElementById("my_modal_5").showModal()}
+            onClick={() =>
+              document.getElementById("create-album-modal").showModal()
+            }
           >
             <CreateNewFolderIcon className="size-6 md:size-5" />
             <span className="hidden md:inline">Create album</span>

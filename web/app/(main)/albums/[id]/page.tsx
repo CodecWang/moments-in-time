@@ -1,16 +1,19 @@
 "use client";
 import Photos from "@/components/photos";
-import { DEFAULT_PHOTOS_VIEW } from "@/constants";
+import { DEFAULT_PHOTOS_LAYOUT } from "@/constants";
 import { Album, PhotoGroup, PhotosViewSetting } from "@/type";
 import { useEffect, useState } from "react";
 import { groupPhotoByDate } from "../../photos/utils";
 import PageHeader from "@/components/page-header";
+import AddPhotoAlternateIcon from "@/icons/add-photo-alternate-icon";
+import AddPhotos from "@/components/add-photos";
 
 export default function Page({ params }: { params: { id: string } }) {
   const [album, setAlbum] = useState<Album>();
   const [photoGroups, setPhotoGroups] = useState<PhotoGroup[]>([]);
-  const [photosView, setPhotosView] =
-    useState<PhotosViewSetting>(DEFAULT_PHOTOS_VIEW);
+  const [photosView, setPhotosView] = useState<PhotosViewSetting>(
+    DEFAULT_PHOTOS_LAYOUT,
+  );
 
   useEffect(() => {
     (async () => {
@@ -47,7 +50,12 @@ export default function Page({ params }: { params: { id: string } }) {
 
   return (
     <div className="flex-grow">
+      <AddPhotos />
       <PageHeader title={album.title}>
+        <button className="btn btn-ghost">
+          <AddPhotoAlternateIcon className="size-5" />
+          Add photos
+        </button>
         <button
           className="btn btn-ghost"
           onClick={() => document.getElementById("my_modal_1").showModal()}

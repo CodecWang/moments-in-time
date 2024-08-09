@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import CloseIcon from "@/icons/close-icon";
 
 enum AlbumType {
   Album,
@@ -6,123 +8,164 @@ enum AlbumType {
 }
 
 export default function CreateAlbumModal() {
+  const router = useRouter();
+  const dialogRef = useRef<HTMLDialogElement>(null);
   const [albumType, setAlbumType] = useState<AlbumType>(AlbumType.Album);
 
-  const handleCreateAlbum = async (e) => {
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+
+    const handleClose = () => {
+      console.log("close -- need to reset value");
+      // dialogRef.current?.reset();
+    };
+
+    dialog.addEventListener("close", handleClose);
+    return () => {
+      dialog.removeEventListener("close", handleClose);
+    };
+  }, []);
+
+  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    const formData = new FormData(e.currentTarget);
+    // for (var [key, value] of formData.entries()) {
+    //   console.log(key, value);
+    // }
+
     const response = await fetch(`/api/v1/albums`, {
       method: "POST",
       body: JSON.stringify({
-        title: "香港游",
+        title: formData.get("albumName"),
       }),
       headers: {
         "Content-Type": "application/json",
       },
     });
     const album = await response.json();
-    console.log("create succeeded", album);
-
-    document.getElementById("my_modal_5").hideModal();
+    router.push(`/albums/${album.id}`);
+    dialogRef.current?.close();
   };
 
+  const Album = () => (
+    <label className="form-control w-full max-w-xs">
+      <div className="label">
+        <span className="label-text">Album name</span>
+      </div>
+      <input
+        type="text"
+        name="albumName"
+        placeholder="Type here"
+        className="input input-bordered w-full max-w-xs"
+      />
+    </label>
+  );
+
+  const SmartAlbum = () => (
+    <div>
+      Create smart album
+      <label className="form-control w-full max-w-xs">
+        <div className="label">
+          <span className="label-text">Album name</span>
+        </div>
+        <input
+          type="text"
+          placeholder="Type here"
+          className="input input-bordered w-full max-w-xs"
+        />
+      </label>
+      <label className="form-control w-full max-w-xs">
+        <div className="label">
+          <span className="label-text">Album name</span>
+        </div>
+        <input
+          type="text"
+          placeholder="Type here"
+          className="input input-bordered w-full max-w-xs"
+        />
+      </label>
+      <label className="form-control w-full max-w-xs">
+        <div className="label">
+          <span className="label-text">Album name</span>
+        </div>
+        <input
+          type="text"
+          placeholder="Type here"
+          className="input input-bordered w-full max-w-xs"
+        />
+      </label>
+      <label className="form-control w-full max-w-xs">
+        <div className="label">
+          <span className="label-text">Album name</span>
+        </div>
+        <input
+          type="text"
+          placeholder="Type here"
+          className="input input-bordered w-full max-w-xs"
+        />
+      </label>
+      <label className="form-control w-full max-w-xs">
+        <div className="label">
+          <span className="label-text">Album name</span>
+        </div>
+        <input
+          type="text"
+          placeholder="Type here"
+          className="input input-bordered w-full max-w-xs"
+        />
+      </label>
+    </div>
+  );
+
   return (
-    <dialog id="my_modal_5" className="modal modal-bottom sm:modal-middle">
+    <dialog
+      ref={dialogRef}
+      id="create-album-modal"
+      className="modal modal-bottom sm:modal-middle"
+    >
       <div className="modal-box flex flex-col">
-        <div className="join self-center">
-          <input
-            className="btn join-item"
-            type="radio"
-            name="options"
-            aria-label="Album"
-            checked={albumType === AlbumType.Album}
-            onChange={() => setAlbumType(AlbumType.Album)}
-          />
-          <input
-            className="btn join-item"
-            type="radio"
-            name="options"
-            aria-label="Smart Album"
-            checked={albumType === AlbumType.SmartAlbum}
-            onChange={() => setAlbumType(AlbumType.SmartAlbum)}
-          />
-        </div>
-        <div className="py-4">
-          {albumType === AlbumType.Album ? (
-            <label className="form-control w-full max-w-xs">
-              <div className="label">
-                <span className="label-text">Album name</span>
-              </div>
-              <input
-                type="text"
-                placeholder="Type here"
-                className="input input-bordered w-full max-w-xs"
-              />
-            </label>
-          ) : (
-            <div>
-              Create smart album
-              <label className="form-control w-full max-w-xs">
-                <div className="label">
-                  <span className="label-text">Album name</span>
-                </div>
-                <input
-                  type="text"
-                  placeholder="Type here"
-                  className="input input-bordered w-full max-w-xs"
-                />
-              </label>
-              <label className="form-control w-full max-w-xs">
-                <div className="label">
-                  <span className="label-text">Album name</span>
-                </div>
-                <input
-                  type="text"
-                  placeholder="Type here"
-                  className="input input-bordered w-full max-w-xs"
-                />
-              </label>
-              <label className="form-control w-full max-w-xs">
-                <div className="label">
-                  <span className="label-text">Album name</span>
-                </div>
-                <input
-                  type="text"
-                  placeholder="Type here"
-                  className="input input-bordered w-full max-w-xs"
-                />
-              </label>
-              <label className="form-control w-full max-w-xs">
-                <div className="label">
-                  <span className="label-text">Album name</span>
-                </div>
-                <input
-                  type="text"
-                  placeholder="Type here"
-                  className="input input-bordered w-full max-w-xs"
-                />
-              </label>
-              <label className="form-control w-full max-w-xs">
-                <div className="label">
-                  <span className="label-text">Album name</span>
-                </div>
-                <input
-                  type="text"
-                  placeholder="Type here"
-                  className="input input-bordered w-full max-w-xs"
-                />
-              </label>
-            </div>
-          )}
-        </div>
-        <div className="modal-action">
-          <form method="dialog">
-            {/* if there is a button in form, it will close the modal */}
-            <button className="btn">Close</button>
-            <button className="btn btn-primary" onClick={handleCreateAlbum}>
+        <button className="btn btn-circle btn-ghost absolute right-2 top-2">
+          <CloseIcon className="size-5" />
+        </button>
+        <form onSubmit={handleFormSubmit}>
+          <div className="join self-center">
+            <input
+              className="btn join-item"
+              type="radio"
+              name="options"
+              aria-label="Album"
+              checked={albumType === AlbumType.Album}
+              onChange={() => setAlbumType(AlbumType.Album)}
+            />
+            <input
+              className="btn join-item"
+              type="radio"
+              name="options"
+              aria-label="Smart Album"
+              checked={albumType === AlbumType.SmartAlbum}
+              onChange={() => setAlbumType(AlbumType.SmartAlbum)}
+            />
+          </div>
+          <div className="py-4">
+            {albumType === AlbumType.Album ? <Album /> : <SmartAlbum />}
+          </div>
+          <div className="modal-action">
+            <button
+              className="btn"
+              onClick={(e) => {
+                e.preventDefault();
+                dialogRef.current?.close();
+              }}
+            >
+              Close
+            </button>
+            <button className="btn btn-primary" type="submit">
               Confirm
             </button>
-          </form>
-        </div>
+          </div>
+        </form>
       </div>
     </dialog>
   );
